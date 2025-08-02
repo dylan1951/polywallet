@@ -12,6 +12,7 @@ COPY packages/server ./packages/server
 COPY packages/shared ./packages/shared
 
 ENV NODE_ENV=production
-CMD ["bun", "run", "packages/server/src/index.ts"]
+WORKDIR /app/packages/server
+ENTRYPOINT ["bun", "start"]
 
 EXPOSE 3001
