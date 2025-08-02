@@ -1,0 +1,28 @@
+{
+  "name": "server",
+  "version": "1.0.50",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "bun run src/index.ts"
+  },
+  "dependencies": {
+    "@trpc/server": "^11.0.1",
+    "@trustwallet/wallet-core": "^4.2.12",
+    "dotenv": "^16.4.7",
+    "drizzle-orm": "^0.42.0",
+    "pg": "^8.13.3",
+    "reconnecting-websocket": "^4.4.0",
+    "superjson": "^2.2.2",
+    "ws": "^8.18.1",
+    "zod": "^3.24.2",
+    "@packages/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.2.19",
+    "@types/pg": "^8.11.11",
+    "drizzle-kit": "^0.30.5",
+    "@types/ws": "^8.18.1",
+    "@types/node": "22.8.5"
+  },
+  "module": "src/index.js"
+}

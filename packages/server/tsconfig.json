@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "strict": true,
+    "paths": {
+      "@packages/shared": [
+        "../../packages/shared/src"
+      ]
+    }
+  }
+}
