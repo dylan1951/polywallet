@@ -1,0 +1,49 @@
+databases:
+  - engine: PG
+    name: db
+    version: "15"
+features:
+  - buildpack-stack=ubuntu-22
+name: polywallet
+region: syd
+services:
+  - dockerfile_path: /packages/server/Dockerfile
+    envs:
+      - key: NANO_RPC_API_KEY
+        value: ${NANO_RPC_API_KEY}
+        type: SECRET
+      - key: NANO_RPC_API_URL
+        value: ${NANO_RPC_API_URL}
+        type: SECRET
+      - key: NANO_WEBSOCKET_URL
+        value: ${NANO_WEBSOCKET_URL}
+        type: SECRET
+      - key: DATABASE_CA
+        scope: RUN_AND_BUILD_TIME
+        value: ${db.CA_CERT}
+      - key: DATABASE_USER
+        scope: RUN_AND_BUILD_TIME
+        value: ${db.USERNAME}
+      - key: DATABASE_PASSWORD
+        scope: RUN_AND_BUILD_TIME
+        value: ${db.PASSWORD}
+      - key: DATABASE_HOST
+        scope: RUN_AND_BUILD_TIME
+        value: ${db.HOSTNAME}
+      - key: DATABASE_PORT
+        scope: RUN_AND_BUILD_TIME
+        value: ${db.PORT}
+      - key: DATABASE_NAME
+        scope: RUN_AND_BUILD_TIME
+        value: ${db.DATABASE}
+    github:
+      branch: master
+      repo: dylan1951/polywallet
+    health_check:
+      port: 3001
+    instance_count: 1
+    instance_size_slug: apps-s-1vcpu-0.5gb
+    internal_ports:
+      - 3001
+    name: polywallet
+    source_dir: /
