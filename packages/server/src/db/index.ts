@@ -3,15 +3,19 @@ import * as schema from './schema';
 import {Pool} from "pg";
 
 const pool = new Pool({
-    host: process.env.DATABASE_HOST!,
-    port: parseInt(process.env.DATABASE_PORT!),
-    user: process.env.DATABASE_USER!,
-    password: process.env.DATABASE_PASSWORD!,
-    database: process.env.DATABASE_NAME!,
-    ssl: {
-        rejectUnauthorized: true,
-        ca: process.env.DATABASE_CA,
-    },
+    ...(process.env.DATABASE_URL ? { connectionString: process.env.DATABASE_URL } : {
+        host: process.env.DATABASE_HOST!,
+        port: parseInt(process.env.DATABASE_PORT!),
+        user: process.env.DATABASE_USER!,
+        password: process.env.DATABASE_PASSWORD!,
+        database: process.env.DATABASE_NAME!,
+    }),
+    ...(process.env.DATABASE_CA && {
+        ssl: {
+            rejectUnauthorized: true,
+            ca: process.env.DATABASE_CA,
+        }
+    }),
 });
 
 export const db = drizzle({
