@@ -14,4 +14,4 @@ COPY packages/shared ./packages/shared
 ENV NODE_ENV=production
 CMD ["bun", "run", "packages/server/src/index.ts"]
 
-EXPOSE 3000
+EXPOSE 3001
