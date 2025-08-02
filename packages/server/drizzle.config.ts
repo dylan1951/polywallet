@@ -19,7 +19,9 @@ export default defineConfig({
                 ca: process.env.DATABASE_CA!
             }
         })
-
     },
-    casing: "snake_case"
+    casing: "snake_case",
+    migrations: {
+        schema: "public"
+    }
 });
