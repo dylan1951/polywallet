@@ -89,7 +89,7 @@ export class PolyWallet {
 
         const wsClient = createWSClient({
             WebSocket: WS as unknown as typeof WebSocket,
-            url: `ws://localhost:3001`,
+            url: config?.apiUrl ?? `wss://polywallet.dev`,
             onOpen: () => {
                 this.socket = wsClient['activeConnection'].ws._socket;
                 this.socket?.unref();

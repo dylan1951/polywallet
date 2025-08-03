@@ -43,7 +43,7 @@ const appRouter = router({
 // NOT the router itself.
 export type AppRouter = typeof appRouter;
 
-const wss = new WebSocketServer({ port: 3001 });
+const wss = new WebSocketServer({ host: "0.0.0.0", port: 3001 });
 
 applyWSSHandler({
     wss,
@@ -51,4 +51,4 @@ applyWSSHandler({
     createContext
 });
 
-console.log('🚀 tRPC server listening on http://localhost:3001');
+console.log(`🚀 tRPC server listening on ws://${wss.options.host}:${wss.options.port}`);

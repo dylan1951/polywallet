@@ -1,7 +1,8 @@
 import { expect, test } from "bun:test";
-import {ENetwork, PolyWallet} from "../src";
 import {HDWallet, CoinTypeExt, HexCoding} from "../src/trust-wallet";
 import Decimal from "decimal.js";
+import {PolyWallet} from "../src";
+import {ENetwork} from "@packages/shared"
 
 declare module "bun:test" {
     interface Matchers<T> {

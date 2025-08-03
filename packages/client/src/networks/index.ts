@@ -13,7 +13,7 @@ export abstract class Network<Network extends ENetwork> {
     protected readonly wallet: InstanceType<typeof HDWallet>;
     protected readonly trpc: TRPCClient<AppRouter>[Network];
     public static CoinType: InstanceType<typeof CoinType>;
-    // public abstract coinType: InstanceType<typeof CoinType>;
+    public abstract coinType: InstanceType<typeof CoinType>;
     public abstract multiplier: bigint;
 
     protected constructor(wallet: InstanceType<typeof HDWallet>, trpc: TRPCClient<AppRouter>[Network]) {

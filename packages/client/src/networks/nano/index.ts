@@ -25,7 +25,6 @@ class NanoAccount extends Address {
 export class Nano extends Network<ENetwork.nano> {
     static override CoinType: InstanceType<typeof CoinType> = CoinType.nano;
     coinType: InstanceType<typeof CoinType> = Nano.CoinType;
-
     accounts: Map<string, NanoAccount> = new Map<string, NanoAccount>();
     mutex: Mutex = new Mutex();
     subscription?: Unsubscribable;
