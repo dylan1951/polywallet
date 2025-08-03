@@ -15,5 +15,9 @@ jobs:
         uses: actions/checkout@v4
       - name: Deploy the app
         uses: digitalocean/app_action/deploy@v2
+        env:
+          NANO_RPC_API_KEY: ${{ secrets.NANO_RPC_API_KEY }}
+          NANO_RPC_API_URL: ${{ secrets.NANO_RPC_API_URL }}
+          NANO_WEBSOCKET_URL: ${{ secrets.NANO_WEBSOCKET_URL }}
         with:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
