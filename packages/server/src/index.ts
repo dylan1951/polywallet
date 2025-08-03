@@ -16,6 +16,8 @@ export const ee = new EventEmitter<{
     transaction: [tx: Transaction, userId: string];
 }>();
 
+console.log('process.env.NANO_WEBSOCKET_URL!', process.env.NANO_WEBSOCKET_URL!);
+
 const appRouter = router({
     nano: nanoRouter,
     bitcoin: bitcoinRouter,
