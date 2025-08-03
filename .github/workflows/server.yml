@@ -3,12 +3,16 @@ name: Deploy Server
 on:
   push:
     branches: [master]
+    paths:
+      - "packages/server/**"
+      - "packages/shared/**"
+      - ".github/workflows/server.yml"
 
 permissions:
   contents: read
 
 jobs:
-  deploy-app:
+  deploy-server:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -21,3 +25,4 @@ jobs:
           NANO_WEBSOCKET_URL: ${{ secrets.NANO_WEBSOCKET_URL }}
         with:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+          app_spec_location: "packages/server/.do/app.yaml"
