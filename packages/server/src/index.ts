@@ -48,7 +48,11 @@ const appRouter = router({
 // NOT the router itself.
 export type AppRouter = typeof appRouter;
 
-// const wss = new WebSocketServer({ host: "0.0.0.0", port: 3001 });
+const wss = new WebSocketServer({ host: "0.0.0.0", port: 3001 });
+
+wss.on('connection', (ws) => {
+    console.log('Client connected');
+})
 //
 // applyWSSHandler({
 //     wss,
