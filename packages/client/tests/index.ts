@@ -72,7 +72,7 @@ export function chainSuite(network: ENetwork, test: typeof bunTest): void {
         expect(process.env.MNEMONIC, `MNEMONIC environment variable is not set. You could use this one: "${generateMnemonic()}"`).toBeTruthy();
 
         if (!process.env.SERVER_URL) {
-            console.log('SERVER_URL environment variable is not set, using wss://polywallet.dev');
+            console.log('SERVER_URL environment variable is not set, using wss://api.polywallet.dev');
         }
     });
 

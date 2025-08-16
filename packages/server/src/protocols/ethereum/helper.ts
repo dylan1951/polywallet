@@ -20,6 +20,7 @@ class EthereumHelper {
     }
 
     async watchAddress(address: string) {
+        console.log('WEBHOOK_URL', WEBHOOK_URL);
         if (this.addressActivityWebhook) {
             return this.alchemy.notify.updateWebhook(this.addressActivityWebhook.id, {
                 addAddresses: [address]
