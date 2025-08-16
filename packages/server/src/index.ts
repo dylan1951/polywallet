@@ -8,10 +8,12 @@ import EventEmitter, {on} from "events";
 import {tracked} from "@trpc/server";
 import {_transactions} from "./db/schema";
 import {db} from "./db";
-import {and, asc, eq, lte} from "drizzle-orm";
+import {and, eq, lte} from "drizzle-orm";
 import {Transaction} from "@packages/shared";
-import {} from './protocols/ethereum/webhook';
 import {ethereumRouter} from "./protocols/ethereum/router";
+import webhookRouter from './protocols/ethereum/webhook';
+import express from 'express';
+import * as http from 'node:http';
 
 export const ee = new EventEmitter<{
     transaction: [tx: Transaction, userId: string];
@@ -48,11 +50,11 @@ const appRouter = router({
 // NOT the router itself.
 export type AppRouter = typeof appRouter;
 
-const wss = new WebSocketServer({ host: "0.0.0.0", port: 3001 });
+const app = express();
+app.use('/webhook', webhookRouter);
 
-wss.on('connection', (ws) => {
-    console.log('Client connected');
-})
+const server = http.createServer(app);
+const wss = new WebSocketServer({ server });
 
 applyWSSHandler({
     wss,
@@ -60,4 +62,7 @@ applyWSSHandler({
     createContext
 });
 
-console.log(`🚀 tRPC server listening on ws://${wss.options.host}:${wss.options.port}`);
+const PORT = 3001;
+server.listen(PORT, () => {
+    console.log(`🚀 HTTP + WS server listening on http://0.0.0.0:${PORT}`);
+});

@@ -7,10 +7,9 @@ import { alchemyNetworkToENetworkMap } from './helper';
 import { _addresses } from '../../db/schema';
 import { ee } from '../../index';
 import { db } from '../../db';
-const app = express()
-const port = 3002
 
-app.use(express.json());
+const router = express.Router();
+router.use(express.json());
 
 type AlchemyWebhookNotification = {
     webhookId: string;
@@ -37,7 +36,7 @@ type AlchemyWebhookNotification = {
     };
 };
 
-app.post('/alchemy-webhook', async (req, res) => {
+router.post('/alchemy', async (req, res) => {
     console.log('Received Alchemy webhook', JSON.stringify(req.body, null, 2));
 
     const notification = req.body as AlchemyWebhookNotification;
@@ -73,6 +72,4 @@ app.post('/alchemy-webhook', async (req, res) => {
     res.status(200).send();
 });
 
-app.listen(port, () => {
-    console.log(`Webhook handler listening on port ${port}`)
-});
+export default router;

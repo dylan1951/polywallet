@@ -7,12 +7,12 @@ features:
 ingress:
   rules:
   - component:
-      name: polywallet
+      name: api
     match:
       authority:
-        exact: ""
+        exact: api.polywallet.dev
       path:
-        prefix: /trpc
+        prefix: /
 name: polywallet
 region: syd
 services:
@@ -27,6 +27,15 @@ services:
       - key: NANO_WEBSOCKET_URL
         value: ${NANO_WEBSOCKET_URL}
         type: SECRET
+      - key: ALCHEMY_API_KEY
+        value: ${ALCHEMY_API_KEY}
+        type: SECRET
+      - key: ALCHEMY_NOTIFY_AUTH_TOKEN
+        value: ${ALCHEMY_NOTIFY_AUTH_TOKEN}
+        type: SECRET
+      - key: PUBLIC_URL
+        value: ${_self.PUBLIC_URL}
+        type: GENERAL
     github:
       branch: master
       repo: dylan1951/polywallet
