@@ -1,7 +1,6 @@
 domains:
 - domain: polywallet.dev
   type: PRIMARY
-  wildcard: true
   zone: polywallet.dev
 features:
   - buildpack-stack=ubuntu-22
@@ -11,9 +10,9 @@ ingress:
       name: api
     match:
       authority:
-        exact: api.polywallet.dev
+        exact: ""
       path:
-        prefix: /
+        prefix: /api
 name: polywallet
 region: syd
 services:
