@@ -2,7 +2,7 @@ import {Network, Alchemy, WebhookType, Webhook} from "alchemy-sdk";
 import {ethers} from "ethers";
 import {ENetwork, EProtocol, ProtocolNetworks} from "@packages/shared";
 
-const WEBHOOK_URL = process.env.PUBLIC_URL + 'webhook/alchemy';
+const WEBHOOK_URL = process.env.PUBLIC_URL + '/webhook/alchemy';
 
 class EthereumHelper {
     alchemy: Alchemy;
