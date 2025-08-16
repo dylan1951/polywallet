@@ -8,7 +8,10 @@ import { EProtocol, ProtocolNetworks } from '@packages/shared';
 import { Mutex } from 'async-mutex';
 
 export class Account {
-    constructor(public coinType: CoinType, public privateKey: PrivateKey) {}
+    constructor(
+        public coinType: CoinType,
+        public privateKey: PrivateKey
+    ) {}
 
     get publicKey(): PublicKey {
         return this.privateKey.getPublicKey(this.coinType);
@@ -30,8 +33,8 @@ type Client<P extends EProtocol> = TRPCClient<AppRouter>[P] & {
             output: void;
             errorShape: DefaultErrorShape;
             transformer: true;
-        }>
-    },
+        }>;
+    };
     getAddresses: {
         query: Resolver<{
             input: {
@@ -43,14 +46,14 @@ type Client<P extends EProtocol> = TRPCClient<AppRouter>[P] & {
             }[];
             errorShape: DefaultErrorShape;
             transformer: true;
-        }>
-    }
+        }>;
+    };
 };
 
 export interface IProtocol {
     newAddress(): Promise<string>;
     transfer(opts: { from: string; to: string; amount: Decimal; contract?: string }): Promise<TransactionPreview>;
-    balance(opts: {address: string, contract?: string }): Promise<Decimal>;
+    balance(opts: { address: string; contract?: string }): Promise<Decimal>;
     smallest: Decimal;
     deriveKey(index: number): PrivateKey;
     coinType: CoinType;
@@ -64,12 +67,16 @@ export abstract class Protocol<P extends EProtocol> implements IProtocol {
     accounts: Map<string, Account> = new Map<string, Account>();
     mutex: Mutex = new Mutex();
 
-    constructor(wallet: HDWallet, protected trpc: Client<P>, readonly network: ProtocolNetworks[P][number]) {
+    constructor(
+        wallet: HDWallet,
+        protected trpc: Client<P>,
+        readonly network: ProtocolNetworks[P][number]
+    ) {
         this.wallet = wallet;
         this.mutex.acquire();
 
-        this.trpc.getAddresses.query({ network: this.network }).then(addresses => {
-            addresses.forEach(account => {
+        this.trpc.getAddresses.query({ network: this.network }).then((addresses) => {
+            addresses.forEach((account) => {
                 this.accounts.set(account.address, new Account(this.coinType, this.deriveKey(account.index)));
             });
 
@@ -84,7 +91,7 @@ export abstract class Protocol<P extends EProtocol> implements IProtocol {
         const index = this.accounts.size;
         const key = this.deriveKey(index);
         const account = new Account(this.coinType, key);
-        await this.trpc.addAddress.mutate({address: account.address, index, network: this.network});
+        await this.trpc.addAddress.mutate({ address: account.address, index, network: this.network });
         this.accounts.set(account.address, account);
         console.log(`New address ${account.address} created`);
         return account.address;
@@ -97,7 +104,7 @@ export abstract class Protocol<P extends EProtocol> implements IProtocol {
         contract?: string;
     }): Promise<TransactionPreview>;
 
-    abstract balance(opts: { address: string, contract?: string }): Promise<Decimal>;
+    abstract balance(opts: { address: string; contract?: string }): Promise<Decimal>;
 
     get smallest(): Decimal {
         return Decimal(1).div(this.multiplier);

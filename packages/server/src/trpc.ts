@@ -1,13 +1,13 @@
 import { initTRPC } from '@trpc/server';
-import type {Context} from "./context";
-import superjson, {SuperJSON} from 'superjson';
-import Decimal from "decimal.js";
+import type { Context } from './context';
+import superjson, { SuperJSON } from 'superjson';
+import Decimal from 'decimal.js';
 
 SuperJSON.registerCustom<Decimal, string>(
     {
         isApplicable: (v): v is Decimal => Decimal.isDecimal(v),
-        serialize: v => v.toJSON(),
-        deserialize: v => new Decimal(v),
+        serialize: (v) => v.toJSON(),
+        deserialize: (v) => new Decimal(v),
     },
     'decimal.js'
 );
@@ -17,7 +17,7 @@ SuperJSON.registerCustom<Decimal, string>(
  * Should be done only once per backend!
  */
 const t = initTRPC.context<Context>().create({
-    transformer: superjson
+    transformer: superjson,
 });
 
 /**

@@ -1,6 +1,6 @@
-import {Network, Alchemy, WebhookType, Webhook} from "alchemy-sdk";
-import {ethers} from "ethers";
-import {ENetwork, EProtocol, ProtocolNetworks} from "@packages/shared";
+import { Network, Alchemy, WebhookType, Webhook } from 'alchemy-sdk';
+import { ethers } from 'ethers';
+import { ENetwork, EProtocol, ProtocolNetworks } from '@packages/shared';
 
 const WEBHOOK_URL = process.env.PUBLIC_URL + '/webhook/alchemy';
 
@@ -9,7 +9,10 @@ class EthereumHelper {
     provider: ethers.AlchemyProvider;
     addressActivityWebhook?: Webhook;
 
-    constructor(public chainId: number, public alchemyNetwork: Network) {
+    constructor(
+        public chainId: number,
+        public alchemyNetwork: Network
+    ) {
         this.alchemy = new Alchemy({
             apiKey: process.env.ALCHEMY_API_KEY,
             network: this.alchemyNetwork,
@@ -23,10 +26,10 @@ class EthereumHelper {
         console.log('WEBHOOK_URL', WEBHOOK_URL);
         if (this.addressActivityWebhook) {
             return this.alchemy.notify.updateWebhook(this.addressActivityWebhook.id, {
-                addAddresses: [address]
+                addAddresses: [address],
             });
         } else {
-            const {webhooks} = await this.alchemy.notify.getAllWebhooks();
+            const { webhooks } = await this.alchemy.notify.getAllWebhooks();
 
             for (const webhook of webhooks) {
                 if (webhook.url !== WEBHOOK_URL) {
@@ -34,13 +37,14 @@ class EthereumHelper {
                     console.log('Deleted Alchemy webhook');
                 } else if (webhook.network === this.alchemyNetwork && webhook.type === WebhookType.ADDRESS_ACTIVITY) {
                     this.addressActivityWebhook = webhook;
-                    return this.alchemy.notify.updateWebhook(webhook.id, {addAddresses: [address]});
+                    return this.alchemy.notify.updateWebhook(webhook.id, { addAddresses: [address] });
                 }
             }
 
             this.addressActivityWebhook = await this.alchemy.notify.createWebhook(
                 WEBHOOK_URL,
-                WebhookType.ADDRESS_ACTIVITY, {
+                WebhookType.ADDRESS_ACTIVITY,
+                {
                     addresses: [address],
                     network: this.alchemyNetwork,
                 }

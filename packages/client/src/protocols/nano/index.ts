@@ -1,26 +1,34 @@
-import {Account, Protocol} from '../index'
-import {AnySigner, CoinType, CoinTypeExt, HexCoding, PrivateKey} from "../../trust-wallet";
-import {TW} from "@trustwallet/wallet-core";
-import Decimal from "decimal.js";
-import {EProtocol} from "@packages/shared";
-import {TransactionPreview} from "../../index";
+import { Account, Protocol } from '../index';
+import { AnySigner, CoinType, CoinTypeExt, HexCoding, PrivateKey } from '../../trust-wallet';
+import { TW } from '@trustwallet/wallet-core';
+import Decimal from 'decimal.js';
+import { EProtocol } from '@packages/shared';
+import { TransactionPreview } from '../../index';
 
 export class Nano extends Protocol<EProtocol.Nano> {
     static override CoinType: CoinType = CoinType.nano;
     coinType: CoinType = Nano.CoinType;
     multiplier: bigint = 10n ** 30n;
 
-    static readonly representative = "nano_1banexkcfuieufzxksfrxqf6xy8e57ry1zdtq9yn7jntzhpwu4pg4hajojmq";
+    static readonly representative = 'nano_1banexkcfuieufzxksfrxqf6xy8e57ry1zdtq9yn7jntzhpwu4pg4hajojmq';
 
     deriveKey(index: number): PrivateKey {
         return this.wallet.getDerivedKey(this.coinType, index, 0, 0);
     }
 
-    async receive({ address, linkBlock, amount }: { address: string, linkBlock: string, amount: bigint }): Promise<string> {
+    async receive({
+        address,
+        linkBlock,
+        amount,
+    }: {
+        address: string;
+        linkBlock: string;
+        amount: bigint;
+    }): Promise<string> {
         const account = this.accounts.get(address);
 
         if (!account) {
-            throw Error("Account not found");
+            throw Error('Account not found');
         }
 
         const { frontier, balance } = await this.trpc.getAccountInfo.query(address);
@@ -58,16 +66,16 @@ export class Nano extends Protocol<EProtocol.Nano> {
         }
 
         await this.trpc.processBlock.mutate(JSON.parse(block.json));
-        return HexCoding.encode(block.blockHash).slice(2).toUpperCase()
+        return HexCoding.encode(block.blockHash).slice(2).toUpperCase();
     }
 
-    async receiveAll(account: string): Promise<{frontier: string | null, received: bigint}> {
-        const receivable = await this.trpc.accountsReceivable.query([account]).then(r => r[account]);
+    async receiveAll(account: string): Promise<{ frontier: string | null; received: bigint }> {
+        const receivable = await this.trpc.accountsReceivable.query([account]).then((r) => r[account]);
         let received = 0n;
         let frontier = null;
 
         for (const [linkBlock, { amount }] of Object.entries(receivable)) {
-            frontier = await this.receive({address: account, linkBlock, amount: BigInt(amount) });
+            frontier = await this.receive({ address: account, linkBlock, amount: BigInt(amount) });
             console.log(`Received ${linkBlock}: ${amount}`);
             received += BigInt(amount);
         }
@@ -76,11 +84,11 @@ export class Nano extends Protocol<EProtocol.Nano> {
     }
 
     async transfer({ from, to, amount }: { from: string; to: string; amount: Decimal }): Promise<TransactionPreview> {
-        console.log("Sending transaction", { from, to, amount });
+        console.log('Sending transaction', { from, to, amount });
         const account = this.accounts.get(from);
 
         if (!account) {
-            throw Error("Account not found");
+            throw Error('Account not found');
         }
 
         let { frontier, balance, receivable } = await this.trpc.getAccountInfo.query(from);
@@ -89,7 +97,7 @@ export class Nano extends Protocol<EProtocol.Nano> {
 
         if (newBalance < 0) {
             if (frontier && !receivable) {
-                throw Error("Insufficient funds");
+                throw Error('Insufficient funds');
             }
 
             const result = await this.receiveAll(from);
@@ -97,7 +105,7 @@ export class Nano extends Protocol<EProtocol.Nano> {
             newBalance += result.received;
 
             if (newBalance < 0) {
-                throw Error("Insufficient funds");
+                throw Error('Insufficient funds');
             }
         }
 
@@ -131,7 +139,7 @@ export class Nano extends Protocol<EProtocol.Nano> {
         return {
             fee: Decimal(0),
             hash: HexCoding.encode(block.blockHash).slice(2).toUpperCase(),
-            send: () => this.trpc.processBlock.mutate({...JSON.parse(block.json), work})
+            send: () => this.trpc.processBlock.mutate({ ...JSON.parse(block.json), work }),
         };
     }
 

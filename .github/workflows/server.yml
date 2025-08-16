@@ -1,30 +1,30 @@
 name: Deploy Server
 
 on:
-  push:
-    branches: [master]
-    paths:
-      - "packages/server/**"
-      - "packages/shared/**"
-      - ".github/workflows/server.yml"
+    push:
+        branches: [master]
+        paths:
+            - 'packages/server/**'
+            - 'packages/shared/**'
+            - '.github/workflows/server.yml'
 
 permissions:
-  contents: read
+    contents: read
 
 jobs:
-  deploy-server:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Deploy the app
-        uses: digitalocean/app_action/deploy@v2
-        env:
-          NANO_RPC_API_KEY: ${{ secrets.NANO_RPC_API_KEY }}
-          NANO_RPC_API_URL: ${{ secrets.NANO_RPC_API_URL }}
-          NANO_WEBSOCKET_URL: ${{ secrets.NANO_WEBSOCKET_URL }}
-          ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}
-          ALCHEMY_NOTIFY_AUTH_TOKEN: ${{ secrets.ALCHEMY_NOTIFY_AUTH_TOKEN }}
-        with:
-          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
-          app_spec_location: "packages/server/.do/app.yaml"
+    deploy-server:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+            - name: Deploy the app
+              uses: digitalocean/app_action/deploy@v2
+              env:
+                  NANO_RPC_API_KEY: ${{ secrets.NANO_RPC_API_KEY }}
+                  NANO_RPC_API_URL: ${{ secrets.NANO_RPC_API_URL }}
+                  NANO_WEBSOCKET_URL: ${{ secrets.NANO_WEBSOCKET_URL }}
+                  ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}
+                  ALCHEMY_NOTIFY_AUTH_TOKEN: ${{ secrets.ALCHEMY_NOTIFY_AUTH_TOKEN }}
+              with:
+                  token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+                  app_spec_location: 'packages/server/.do/app.yaml'

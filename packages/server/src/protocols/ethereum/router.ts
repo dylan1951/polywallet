@@ -48,19 +48,18 @@ export const ethereumRouter = router({
             },
         });
     }),
-    getFeeData: ethereumProcedure
-        .query(async ({ ctx: { helper } }) => {
-            const { maxPriorityFeePerGas, maxFeePerGas } = await helper.provider.getFeeData();
+    getFeeData: ethereumProcedure.query(async ({ ctx: { helper } }) => {
+        const { maxPriorityFeePerGas, maxFeePerGas } = await helper.provider.getFeeData();
 
-            if (!maxFeePerGas || !maxPriorityFeePerGas) {
-                throw Error('Max fee per gas is not set');
-            }
+        if (!maxFeePerGas || !maxPriorityFeePerGas) {
+            throw Error('Max fee per gas is not set');
+        }
 
-            return {
-                maxPriorityFeePerGas,
-                maxFeePerGas,
-            };
-        }),
+        return {
+            maxPriorityFeePerGas,
+            maxFeePerGas,
+        };
+    }),
     getTransactionCount: ethereumProcedure
         .input(z.object({ address: z.string() }))
         .query(async ({ input: { address }, ctx: { helper } }) => {

@@ -1,32 +1,38 @@
 {
-  "name": "@dylan1951/polywallet",
-  "version": "0.15.0",
-  "type": "module",
-  "files": ["dist"],
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "devDependencies": {
-    "@types/bun": "latest",
-    "@types/node": "22.8.5",
-    "bunup": "^0.9.1",
-    "@packages/shared": "workspace:*"
-  },
-  "dependencies": {
-    "@trpc/client": "^11.1.1",
-    "@trustwallet/wallet-core": "^4.2.12",
-    "async-mutex": "^0.5.0",
-    "decimal.js": "^10.6.0",
-    "superjson": "^2.2.2"
-  },
-  "bunup": {
-    "entry": ["src/index.ts"],
-    "format": ["esm"],
-    "target": "browser"
-  },
-  "scripts": {
-    "build": "bunup src/index.ts"
-  },
-  "publishConfig": {
-    "access": "public"
-  }
+    "name": "@dylan1951/polywallet",
+    "version": "0.15.0",
+    "type": "module",
+    "files": [
+        "dist"
+    ],
+    "module": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "devDependencies": {
+        "@types/bun": "latest",
+        "@types/node": "22.8.5",
+        "bunup": "^0.9.1",
+        "@packages/shared": "workspace:*"
+    },
+    "dependencies": {
+        "@trpc/client": "^11.1.1",
+        "@trustwallet/wallet-core": "^4.2.12",
+        "async-mutex": "^0.5.0",
+        "decimal.js": "^10.6.0",
+        "superjson": "^2.2.2"
+    },
+    "bunup": {
+        "entry": [
+            "src/index.ts"
+        ],
+        "format": [
+            "esm"
+        ],
+        "target": "browser"
+    },
+    "scripts": {
+        "build": "bunup src/index.ts"
+    },
+    "publishConfig": {
+        "access": "public"
+    }
 }

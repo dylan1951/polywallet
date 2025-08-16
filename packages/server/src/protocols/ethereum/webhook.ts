@@ -1,8 +1,8 @@
-import express from 'express'
+import express from 'express';
 import { Network } from 'alchemy-sdk';
-import Decimal from "decimal.js";
-import {eq, and} from "drizzle-orm";
-import {getAddress} from "ethers";
+import Decimal from 'decimal.js';
+import { eq, and } from 'drizzle-orm';
+import { getAddress } from 'ethers';
 import { alchemyNetworkToENetworkMap } from './helper';
 import { _addresses } from '../../db/schema';
 import { ee } from '../../index';
@@ -18,20 +18,19 @@ type AlchemyWebhookNotification = {
     type: 'ADDRESS_ACTIVITY';
     event: {
         network: keyof typeof Network;
-        activity:
-            {
-                fromAddress: `0x${string}`;
-                toAddress: `0x${string}`;
-                blockNum: `0x${string}`;
-                hash: `0x${string}`;
-                value: number;
-                asset: string;
-                category: 'external';
-                rawContract: {
-                    rawValue: `0x${string}`;
-                    decimals: number;
-                };
-            }[];
+        activity: {
+            fromAddress: `0x${string}`;
+            toAddress: `0x${string}`;
+            blockNum: `0x${string}`;
+            hash: `0x${string}`;
+            value: number;
+            asset: string;
+            category: 'external';
+            rawContract: {
+                rawValue: `0x${string}`;
+                decimals: number;
+            };
+        }[];
         source: string;
     };
 };
@@ -56,17 +55,19 @@ router.post('/alchemy', async (req, res) => {
     }
 
     const accounts = await db.query._addresses.findMany({
-        where: and(eq(_addresses.address, getAddress(activity.toAddress)), eq(_addresses.network, network))
+        where: and(eq(_addresses.address, getAddress(activity.toAddress)), eq(_addresses.network, network)),
     });
 
     for (const account of accounts) {
-        ee.emit('transaction', {
+        const txPayload = {
             asset: { network },
             recipient: getAddress(activity.toAddress),
             amount: Decimal(activity.rawContract.rawValue).div(Decimal(10).pow(activity.rawContract.decimals)),
             source: getAddress(activity.fromAddress),
             hash: activity.hash,
-        }, account.userId);
+        };
+
+        ee.emit('transaction', txPayload, account.userId);
     }
 
     res.status(200).send();

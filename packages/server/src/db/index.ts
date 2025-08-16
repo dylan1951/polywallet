@@ -7,18 +7,20 @@ import { PgDatabase, PgQueryResultHKT } from 'drizzle-orm/pg-core';
 function getDatabase() {
     if (process.env.DATABASE_URL || process.env.DATABASE_HOST) {
         const client = new Pool({
-            ...(process.env.DATABASE_URL ? { connectionString: process.env.DATABASE_URL } : {
-                host: process.env.DATABASE_HOST!,
-                port: parseInt(process.env.DATABASE_PORT!),
-                user: process.env.DATABASE_USER!,
-                password: process.env.DATABASE_PASSWORD!,
-                database: process.env.DATABASE_NAME!,
-            }),
+            ...(process.env.DATABASE_URL
+                ? { connectionString: process.env.DATABASE_URL }
+                : {
+                      host: process.env.DATABASE_HOST!,
+                      port: parseInt(process.env.DATABASE_PORT!),
+                      user: process.env.DATABASE_USER!,
+                      password: process.env.DATABASE_PASSWORD!,
+                      database: process.env.DATABASE_NAME!,
+                  }),
             ...(process.env.DATABASE_CA && {
                 ssl: {
                     rejectUnauthorized: true,
                     ca: process.env.DATABASE_CA,
-                }
+                },
             }),
         });
 
@@ -32,11 +34,10 @@ function getDatabase() {
             schema,
             casing: 'snake_case',
             connection: {
-                dataDir: '.pglite'
-            }
+                dataDir: '.pglite',
+            },
         });
     }
 }
 
 export const db: PgDatabase<PgQueryResultHKT, typeof schema> = getDatabase();
-

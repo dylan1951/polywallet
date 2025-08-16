@@ -1,48 +1,48 @@
 domains:
-- domain: polywallet.dev
-  type: PRIMARY
-  zone: polywallet.dev
+    - domain: polywallet.dev
+      type: PRIMARY
+      zone: polywallet.dev
 features:
-  - buildpack-stack=ubuntu-22
+    - buildpack-stack=ubuntu-22
 ingress:
-  rules:
-  - component:
-      name: api
-    match:
-      authority:
-        exact: ""
-      path:
-        prefix: /api
+    rules:
+        - component:
+              name: api
+          match:
+              authority:
+                  exact: ''
+              path:
+                  prefix: /api
 name: polywallet
 region: syd
 services:
-  - dockerfile_path: /packages/server/Dockerfile
-    envs:
-      - key: NANO_RPC_API_KEY
-        value: ${NANO_RPC_API_KEY}
-        type: SECRET
-      - key: NANO_RPC_API_URL
-        value: ${NANO_RPC_API_URL}
-        type: SECRET
-      - key: NANO_WEBSOCKET_URL
-        value: ${NANO_WEBSOCKET_URL}
-        type: SECRET
-      - key: ALCHEMY_API_KEY
-        value: ${ALCHEMY_API_KEY}
-        type: SECRET
-      - key: ALCHEMY_NOTIFY_AUTH_TOKEN
-        value: ${ALCHEMY_NOTIFY_AUTH_TOKEN}
-        type: SECRET
-      - key: PUBLIC_URL
-        value: ${_self.PUBLIC_URL}
-        type: GENERAL
-    github:
-      branch: master
-      repo: dylan1951/polywallet
-    health_check:
-      port: 3001
-    http_port: 3001
-    instance_count: 1
-    instance_size_slug: apps-s-1vcpu-0.5gb
-    name: api
-    source_dir: /
+    - dockerfile_path: /packages/server/Dockerfile
+      envs:
+          - key: NANO_RPC_API_KEY
+            value: ${NANO_RPC_API_KEY}
+            type: SECRET
+          - key: NANO_RPC_API_URL
+            value: ${NANO_RPC_API_URL}
+            type: SECRET
+          - key: NANO_WEBSOCKET_URL
+            value: ${NANO_WEBSOCKET_URL}
+            type: SECRET
+          - key: ALCHEMY_API_KEY
+            value: ${ALCHEMY_API_KEY}
+            type: SECRET
+          - key: ALCHEMY_NOTIFY_AUTH_TOKEN
+            value: ${ALCHEMY_NOTIFY_AUTH_TOKEN}
+            type: SECRET
+          - key: PUBLIC_URL
+            value: ${_self.PUBLIC_URL}
+            type: GENERAL
+      github:
+          branch: master
+          repo: dylan1951/polywallet
+      health_check:
+          port: 3001
+      http_port: 3001
+      instance_count: 1
+      instance_size_slug: apps-s-1vcpu-0.5gb
+      name: api
+      source_dir: /

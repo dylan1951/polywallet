@@ -1,8 +1,8 @@
-import Decimal from "decimal.js";
+import Decimal from 'decimal.js';
 
 export enum EProtocol {
-    Nano = "nano",
-    Ethereum = "ethereum",
+    Nano = 'nano',
+    Ethereum = 'ethereum',
 }
 
 export enum ENetwork {

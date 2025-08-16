@@ -73,10 +73,11 @@ export class Ethereum extends Protocol<EProtocol.Ethereum> {
         return {
             fee: Decimal(gasQuantity * maxFeePerGas).div(this.multiplier),
             hash: HexCoding.encode(Hash.keccak256(transaction.encoded)),
-            send: () => this.trpc.sendTransaction.mutate({
-                rawTransaction: HexCoding.encode(transaction.encoded),
-                network: this.network,
-            }),
+            send: () =>
+                this.trpc.sendTransaction.mutate({
+                    rawTransaction: HexCoding.encode(transaction.encoded),
+                    network: this.network,
+                }),
         };
     }
 }
