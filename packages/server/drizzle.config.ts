@@ -14,7 +14,7 @@ function getDrizzleConfig() {
             dialect: 'postgresql',
             driver: 'pglite',
             dbCredentials: {
-                url: './pglite'
+                url: '.pglite'
             },
             casing: "snake_case",
             migrations: {

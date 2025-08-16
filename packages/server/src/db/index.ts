@@ -32,7 +32,7 @@ function getDatabase() {
             schema,
             casing: 'snake_case',
             connection: {
-                dataDir: './pglite'
+                dataDir: '.pglite'
             }
         });
     }
