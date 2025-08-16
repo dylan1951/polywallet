@@ -23,16 +23,12 @@ export const ethereumRouter = router({
     addAddress: ethereumProcedure
         .input(z.object({ address: z.string(), index: z.number() }))
         .mutation(async ({ ctx: { user, helper, network }, input: { address, index } }) => {
-            const { rowCount } = await db.insert(_addresses).values({
+            await db.insert(_addresses).values({
                 userId: user.id,
                 address: address,
                 index,
                 network,
             });
-
-            if (rowCount !== 1) {
-                throw new TRPCError({ code: 'BAD_REQUEST', message: 'Failed to create address' });
-            }
 
             await helper.watchAddress(address);
             console.log(`Alchemy now watching ${address}`);

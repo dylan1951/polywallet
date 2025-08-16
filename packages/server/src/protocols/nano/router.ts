@@ -33,16 +33,12 @@ export const nanoRouter = router({
     addAddress: nanoProcedure
         .input(z.object({ address: z.string(), index: z.number() }))
         .mutation(async ({ctx: {user}, input: {address, index}}) => {
-            const {rowCount} = await db.insert(_addresses).values({
+            await db.insert(_addresses).values({
                 userId: user.id,
                 address,
                 index,
                 network: ENetwork.NANO_MAINNET,
             });
-
-            if (rowCount !== 1) {
-                throw new TRPCError({code: "BAD_REQUEST", message: 'Failed to create address'});
-            }
         }),
     getAccountInfo: publicProcedure
         .input(z.string().describe('address'))

@@ -7,13 +7,13 @@
     "start": "bun run db:migrate && bun run src/index.ts"
   },
   "dependencies": {
+    "@electric-sql/pglite": "^0.3.7",
     "@packages/shared": "workspace:*",
     "@trpc/server": "^11.0.1",
     "@trustwallet/wallet-core": "^4.2.12",
-    "@types/express": "^5.0.3",
     "alchemy-sdk": "^3.6.2",
     "dotenv": "^16.4.7",
-    "drizzle-orm": "^0.42.0",
+    "drizzle-orm": "^0.44.4",
     "ethers": "^6.15.0",
     "express": "^5.1.0",
     "pg": "^8.13.3",
@@ -25,9 +25,10 @@
   "devDependencies": {
     "@types/bun": "^1.2.19",
     "@types/pg": "^8.11.11",
-    "drizzle-kit": "^0.30.5",
+    "drizzle-kit": "^0.31.4",
     "@types/ws": "^8.18.1",
-    "@types/node": "22.8.5"
+    "@types/node": "22.8.5",
+    "@types/express": "^5.0.3"
   },
   "module": "src/index.js"
 }

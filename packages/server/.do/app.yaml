@@ -1,7 +1,3 @@
-databases:
-  - engine: PG
-    name: db
-    version: "15"
 domains:
 - domain: polywallet.dev
   type: PRIMARY
