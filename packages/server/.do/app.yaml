@@ -1,6 +1,7 @@
 domains:
 - domain: polywallet.dev
   type: PRIMARY
+  wildcard: true
   zone: polywallet.dev
 features:
   - buildpack-stack=ubuntu-22
