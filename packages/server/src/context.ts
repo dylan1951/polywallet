@@ -3,7 +3,7 @@ import {db} from "./db";
 import {_users} from "./db/schema";
 
 export async function createContext({req, res, info}: trpcNext.CreateNextContextOptions) {
-    const id = info.connectionParams?.id ? info.connectionParams?.id : req.headers.id;
+    const id = info.connectionParams?.id ? info.connectionParams.id : req.headers.id;
 
     if (!id) throw Error(`Id is required`);
 

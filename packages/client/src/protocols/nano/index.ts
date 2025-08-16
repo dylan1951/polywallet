@@ -1,69 +1,19 @@
-import {Address, Network} from '../index'
-import {AnySigner, CoinType, CoinTypeExt, HDWallet, HexCoding, PrivateKey, PublicKey} from "../../trust-wallet";
+import {Account, Protocol} from '../index'
+import {AnySigner, CoinType, CoinTypeExt, HexCoding, PrivateKey} from "../../trust-wallet";
 import {TW} from "@trustwallet/wallet-core";
-import type {AppRouter} from "server/src";
-import type {TRPCClient} from '@trpc/client';
-import {Mutex} from 'async-mutex';
-import {type Unsubscribable} from '@trpc/server/observable';
 import Decimal from "decimal.js";
-import {ENetwork} from "@packages/shared";
+import {EProtocol} from "@packages/shared";
 import {TransactionPreview} from "../../index";
 
-class NanoAccount extends Address {
-    address: string;
-    privateKey: InstanceType<typeof PrivateKey>;
-    publicKey: InstanceType<typeof PublicKey>;
-
-    constructor(address: string, privateKey: InstanceType<typeof PrivateKey>) {
-        super();
-        this.address = address;
-        this.privateKey = privateKey;
-        this.publicKey = privateKey.getPublicKey(CoinType.nano);
-    }
-}
-
-export class Nano extends Network<ENetwork.nano> {
-    static override CoinType: InstanceType<typeof CoinType> = CoinType.nano;
-    coinType: InstanceType<typeof CoinType> = Nano.CoinType;
-    accounts: Map<string, NanoAccount> = new Map<string, NanoAccount>();
-    mutex: Mutex = new Mutex();
-    subscription?: Unsubscribable;
+export class Nano extends Protocol<EProtocol.Nano> {
+    static override CoinType: CoinType = CoinType.nano;
+    coinType: CoinType = Nano.CoinType;
     multiplier: bigint = 10n ** 30n;
 
     static readonly representative = "nano_1banexkcfuieufzxksfrxqf6xy8e57ry1zdtq9yn7jntzhpwu4pg4hajojmq";
 
-    constructor(wallet: InstanceType<typeof HDWallet>, trpc: TRPCClient<AppRouter>[ENetwork.nano]) {
-        super(wallet, trpc);
-
-        this.mutex.acquire();
-
-        this.trpc.getAccounts.query().then(accounts => {
-            accounts.forEach(account => {
-                this.accounts.set(account.address, new NanoAccount(account.address, this.deriveKey(account.index)));
-            });
-
-            this.mutex.release();
-        });
-    }
-
-    deriveKey(index: number): InstanceType<typeof PrivateKey> {
+    deriveKey(index: number): PrivateKey {
         return this.wallet.getDerivedKey(this.coinType, index, 0, 0);
-    }
-
-    async generateAddress(): Promise<string> {
-        await this.mutex.waitForUnlock();
-        const index = this.accounts.size;
-        const key = this.deriveKey(index);
-        const address = CoinTypeExt.deriveAddress(this.coinType, key);
-
-        await this.trpc.addAddress.mutate({address, index});
-        this.accounts.set(address, new NanoAccount(address, key));
-        return address;
-    }
-
-    async numberAccounts(): Promise<number> {
-        await this.mutex.waitForUnlock();
-        return this.accounts.size;
     }
 
     async receive({ address, linkBlock, amount }: { address: string, linkBlock: string, amount: bigint }): Promise<string> {
@@ -107,7 +57,8 @@ export class Nano extends Network<ENetwork.nano> {
             throw Error(block.errorMessage);
         }
 
-        return this.trpc.processBlock.mutate(JSON.parse(block.json));
+        await this.trpc.processBlock.mutate(JSON.parse(block.json));
+        return HexCoding.encode(block.blockHash).slice(2).toUpperCase()
     }
 
     async receiveAll(account: string): Promise<{frontier: string | null, received: bigint}> {
@@ -124,7 +75,8 @@ export class Nano extends Network<ENetwork.nano> {
         return { frontier, received };
     }
 
-    async transaction({ from, to, amount }: { from: string; to: string; amount: Decimal }): Promise<TransactionPreview> {
+    async transfer({ from, to, amount }: { from: string; to: string; amount: Decimal }): Promise<TransactionPreview> {
+        console.log("Sending transaction", { from, to, amount });
         const account = this.accounts.get(from);
 
         if (!account) {
@@ -133,7 +85,7 @@ export class Nano extends Network<ENetwork.nano> {
 
         let { frontier, balance, receivable } = await this.trpc.getAccountInfo.query(from);
 
-        let newBalance = balance - BigInt(Decimal(amount).mul(this.multiplier).toString());
+        let newBalance = balance - BigInt(Decimal(amount).mul(this.multiplier).toFixed());
 
         if (newBalance < 0) {
             if (frontier && !receivable) {
@@ -183,12 +135,8 @@ export class Nano extends Network<ENetwork.nano> {
         };
     }
 
-    async balance(address: string): Promise<Decimal> {
+    async balance({ address }: { address: string }): Promise<Decimal> {
         const { balance, receivable } = await this.trpc.getBalance.query(address);
         return Decimal(balance + receivable).div(this.multiplier);
-    }
-
-    get finalityThreshold() {
-        return 1;
     }
 }

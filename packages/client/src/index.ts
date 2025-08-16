@@ -1,14 +1,14 @@
 import {Hash, HDWallet, HexCoding} from "./trust-wallet";
-import {Network} from "./networks";
-import {Nano} from "./networks/nano";
+import { IProtocol } from './protocols';
+import {Nano} from "./protocols/nano";
 import {createTRPCClient, createWSClient, type TRPCLink, wsLink} from '@trpc/client';
 import {WebSocket as WS} from 'ws';
-import { observable } from '@trpc/server/observable';
+import {observable} from '@trpc/server/observable';
 import superjson, {SuperJSON} from 'superjson';
-import {Bitcoin} from "./networks/bitcoin";
 import Decimal from "decimal.js";
 import {ENetwork, Transaction} from "@packages/shared";
 import {AppRouter} from "server/src";
+import {Ethereum} from "./protocols/ethereum";
 
 SuperJSON.registerCustom<Decimal, string>(
     {
@@ -29,14 +29,14 @@ interface Config {
 export abstract class TransactionPreview {
     abstract hash: string;
     abstract fee: Decimal;
-    abstract send(): Promise<string>;
+    abstract send(): Promise<void>;
 }
 
 export class PolyWallet {
-    public readonly wallet: InstanceType<typeof HDWallet>;
+    protected readonly wallet: HDWallet;
     private readonly id;
     private readonly trpc;
-    public readonly networks: Record<ENetwork, Network<ENetwork>>;
+    public readonly networks: Record<ENetwork, IProtocol>;
     private socket?: Bun.Socket;
 
     private enqueue!: (tx: Transaction) => void;
@@ -47,7 +47,7 @@ export class PolyWallet {
         }
     });
 
-    async *transactions(): AsyncGenerator<Transaction, void, void> {
+    async *transactions(options: { includeMissed?: boolean } = {}): AsyncGenerator<Transaction, void, void> {
         const keepAliveTimeout = setTimeout(() => {}, 2147483647);
         try {
             for await (const tx of this.transactionStream) {
@@ -59,6 +59,22 @@ export class PolyWallet {
         } finally {
             clearTimeout(keepAliveTimeout);
         }
+    }
+
+    transfer(opts: {
+        from: string;
+        to: string;
+        amount: Decimal;
+        network: ENetwork;
+    }): Promise<TransactionPreview> {
+        return this.networks[opts.network].transfer(opts);
+    }
+
+    balance(opts: {
+        address: string;
+        network: ENetwork;
+    }): Promise<Decimal> {
+        return this.networks[opts.network].balance(opts);
     }
 
     constructor(mnemonic: string, config?: Config) {
@@ -89,7 +105,7 @@ export class PolyWallet {
 
         const wsClient = createWSClient({
             WebSocket: WS as unknown as typeof WebSocket,
-            url: config?.apiUrl ?? `wss://polywallet.dev`,
+            url: config?.apiUrl || process.env.SERVER_URL || `wss://polywallet.dev`,
             onOpen: () => {
                 this.socket = wsClient['activeConnection'].ws._socket;
                 this.socket?.unref();
@@ -115,8 +131,8 @@ export class PolyWallet {
         });
 
         this.networks = {
-            [ENetwork.nano]: new Nano(this.wallet, this.trpc.nano),
-            [ENetwork.bitcoin]: new Bitcoin(this.wallet, this.trpc.bitcoin),
+            [ENetwork.NANO_MAINNET]: new Nano(this.wallet, this.trpc.nano, ENetwork.NANO_MAINNET),
+            [ENetwork.POLYGON_AMOY]: new Ethereum(this.wallet, this.trpc.ethereum, ENetwork.POLYGON_AMOY),
         }
     }
 }

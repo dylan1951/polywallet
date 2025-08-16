@@ -1,16 +1,28 @@
 import {publicProcedure, router} from "../../trpc";
 import {z} from "zod";
-import {nanoAccount} from "./model";
 import {db} from "../../db";
-import {tracked, TRPCError} from "@trpc/server";
+import {TRPCError} from "@trpc/server";
 import * as nano from "./helper"
-import {eq} from "drizzle-orm";
+import {eq, and} from "drizzle-orm";
 import {listenForConfirmations} from "./websocket";
+import {_addresses} from "../../db/schema";
+import { ENetwork, EProtocol, ProtocolNetworks } from '@packages/shared';
+
+const nanoProcedure = publicProcedure
+    .input(z.object({ network: z.enum(ProtocolNetworks[EProtocol.Nano]) }))
+    .use(({ ctx: { user }, input: { network }, next }) => {
+        return next({
+            ctx: {
+                user,
+                network,
+            },
+        });
+    });
 
 export const nanoRouter = router({
-    getAccounts: publicProcedure.query(async ({ctx: {user}}) => {
-        return db.query.nanoAccount.findMany({
-            where: eq(nanoAccount.userId, user.id),
+    getAddresses: nanoProcedure.query(async ({ctx: {user, network}}) => {
+        return db.query._addresses.findMany({
+            where: and(eq(_addresses.userId, user.id), eq(_addresses.network, network)),
             columns: {
                 userId: false,
                 address: true,
@@ -18,13 +30,14 @@ export const nanoRouter = router({
             }
         });
     }),
-    addAddress: publicProcedure
+    addAddress: nanoProcedure
         .input(z.object({ address: z.string(), index: z.number() }))
         .mutation(async ({ctx: {user}, input: {address, index}}) => {
-            const {rowCount} = await db.insert(nanoAccount).values({
+            const {rowCount} = await db.insert(_addresses).values({
                 userId: user.id,
                 address,
                 index,
+                network: ENetwork.NANO_MAINNET,
             });
 
             if (rowCount !== 1) {
@@ -60,7 +73,7 @@ export const nanoRouter = router({
             work: z.string(),
         }))
         .mutation(async ({input: block}) => {
-            return nano.processBlock(block);
+            await nano.processBlock(block);
         }),
     accountsReceivable: publicProcedure
         .input(z.array(z.string()))

@@ -5,6 +5,8 @@
     "moduleResolution": "node",
     "esModuleInterop": true,
     "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "skipLibCheck": true,
     "paths": {
       "@packages/shared": [
         "../../packages/shared/src"
