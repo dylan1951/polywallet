@@ -23,8 +23,8 @@ jobs:
           NANO_RPC_API_KEY: ${{ secrets.NANO_RPC_API_KEY }}
           NANO_RPC_API_URL: ${{ secrets.NANO_RPC_API_URL }}
           NANO_WEBSOCKET_URL: ${{ secrets.NANO_WEBSOCKET_URL }}
-          ALCHEMY_API_KEY: ${{ ALCHEMY_API_KEY }}
-          ALCHEMY_NOTIFY_AUTH_TOKEN: ${{ ALCHEMY_NOTIFY_AUTH_TOKEN }}
+          ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}
+          ALCHEMY_NOTIFY_AUTH_TOKEN: ${{ secrets.ALCHEMY_NOTIFY_AUTH_TOKEN }}
         with:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
           app_spec_location: "packages/server/.do/app.yaml"
