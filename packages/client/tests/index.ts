@@ -95,13 +95,13 @@ export function chainSuite(network: ENetwork, test: typeof bunTest): void {
             expect(balance).toDecimalBeGreaterThan(Decimal(0), `Must fund ${defaultAddress}`);
             console.log('Default account funded ✅');
 
-            const testAddress = await fundedWallet.networks[network].newAddress();
+            const testAddress = await fundedWallet.newAddress({ network });
             expect(CoinTypeExt.validate(coinType, testAddress)).toBeTrue();
             console.log('Generated address ✅');
 
             const randomWallet = new PolyWallet(generateMnemonic());
 
-            const randomAddress = await randomWallet.networks[network].newAddress();
+            const randomAddress = await randomWallet.newAddress({ network });
             expect(CoinTypeExt.validate(coinType, randomAddress)).toBeTrue();
 
             const balance1 = await randomWallet.balance({ network, address: randomAddress });

@@ -54,9 +54,10 @@ export interface IProtocol {
     newAddress(): Promise<string>;
     transfer(opts: { from: string; to: string; amount: Decimal; contract?: string }): Promise<TransactionPreview>;
     balance(opts: { address: string; contract?: string }): Promise<Decimal>;
-    smallest: Decimal;
     deriveKey(index: number): PrivateKey;
+    newAddress(): Promise<string>;
     coinType: CoinType;
+    smallest: Decimal;
 }
 
 export abstract class Protocol<P extends EProtocol> implements IProtocol {
