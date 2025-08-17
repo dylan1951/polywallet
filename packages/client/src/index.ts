@@ -6,7 +6,7 @@ import { WebSocket as WS } from 'ws';
 import { observable } from '@trpc/server/observable';
 import superjson, { SuperJSON } from 'superjson';
 import Decimal from 'decimal.js';
-import { ENetwork, Transaction } from '@packages/shared';
+import { ENetwork, Transaction, EProtocol } from '@packages/shared';
 import { AppRouter } from 'server/src';
 import { Ethereum } from './protocols/ethereum';
 
@@ -131,3 +131,5 @@ export class PolyWallet {
         };
     }
 }
+
+export { ENetwork, Transaction, EProtocol };
