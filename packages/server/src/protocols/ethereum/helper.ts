@@ -1,4 +1,4 @@
-import { Network, Alchemy, WebhookType, Webhook } from 'alchemy-sdk';
+import { Alchemy, Network, Webhook, WebhookType } from 'alchemy-sdk';
 import { ethers } from 'ethers';
 import { ENetwork, EProtocol, ProtocolNetworks } from '@packages/shared';
 
@@ -8,6 +8,7 @@ class EthereumHelper {
     alchemy: Alchemy;
     provider: ethers.AlchemyProvider;
     addressActivityWebhook?: Webhook;
+    latestBlockNumber?: number;
 
     constructor(
         public chainId: number,
@@ -20,6 +21,15 @@ class EthereumHelper {
         });
 
         this.provider = new ethers.AlchemyProvider(this.chainId, process.env.ALCHEMY_API_KEY);
+
+        // this.provider
+        //     .on('block', (blockNumber) => {
+        //         console.log(`${this.alchemyNetwork} latest block`, blockNumber);
+        //         this.latestBlockNumber = blockNumber;
+        //     })
+        //     .then(() => {
+        //         console.log(`Started Alchemy 'newHeads' subscription for ${this.alchemyNetwork}`);
+        //     });
     }
 
     async watchAddress(address: string) {
@@ -33,11 +43,13 @@ class EthereumHelper {
 
             for (const webhook of webhooks) {
                 if (webhook.url !== WEBHOOK_URL) {
-                    this.alchemy.notify.deleteWebhook(webhook.id);
+                    await this.alchemy.notify.deleteWebhook(webhook.id);
                     console.log('Deleted Alchemy webhook');
                 } else if (webhook.network === this.alchemyNetwork && webhook.type === WebhookType.ADDRESS_ACTIVITY) {
                     this.addressActivityWebhook = webhook;
-                    return this.alchemy.notify.updateWebhook(webhook.id, { addAddresses: [address] });
+                    return this.alchemy.notify.updateWebhook(webhook.id, {
+                        addAddresses: [address],
+                    });
                 }
             }
 
@@ -57,8 +69,12 @@ class EthereumHelper {
 
 export const helpers: Record<ProtocolNetworks[EProtocol.Ethereum][number], EthereumHelper> = {
     [ENetwork.POLYGON_AMOY]: new EthereumHelper(80002, Network.MATIC_AMOY),
+    // [ENetwork.ETH_MAINNET]: new EthereumHelper(137, Network.MATIC_MAINNET),
+    // [ENetwork.ETH_MAINNET]: new EthereumHelper(1, Network.ETH_MAINNET),
 };
 
-export const alchemyNetworkToENetworkMap: { [key in Network]?: ProtocolNetworks[EProtocol.Ethereum][number] } = {
+export const alchemyNetworkToENetworkMap: {
+    [key in Network]?: ProtocolNetworks[EProtocol.Ethereum][number];
+} = {
     [Network.MATIC_AMOY]: ENetwork.POLYGON_AMOY,
 };

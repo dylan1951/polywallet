@@ -7,6 +7,7 @@ export enum EProtocol {
 
 export enum ENetwork {
     POLYGON_AMOY = 'polygon-amoy',
+    // ETH_MAINNET = 'polygon-mainnet',
     NANO_MAINNET = 'nano-mainnet',
 }
 

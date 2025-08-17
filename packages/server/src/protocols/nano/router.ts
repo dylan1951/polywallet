@@ -4,7 +4,7 @@ import { db } from '../../db';
 import { TRPCError } from '@trpc/server';
 import * as nano from './helper';
 import { eq, and } from 'drizzle-orm';
-import { listenForConfirmations } from './websocket';
+// import { listenForConfirmations } from './websocket';
 import { _addresses } from '../../db/schema';
 import { ENetwork, EProtocol, ProtocolNetworks } from '@packages/shared';
 
@@ -73,4 +73,4 @@ export const nanoRouter = router({
     acknowledgeReceipt: publicProcedure.input(z.string().describe('txHash')).mutation(async ({ input: txHash }) => {}),
 });
 
-void listenForConfirmations();
+// void listenForConfirmations();

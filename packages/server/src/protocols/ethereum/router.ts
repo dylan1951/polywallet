@@ -30,8 +30,8 @@ export const ethereumRouter = router({
                 network,
             });
 
-            await helper.watchAddress(address);
-            console.log(`Alchemy now watching ${address}`);
+            // await helper.watchAddress(address);
+            // console.log(`Alchemy now watching ${address}`);
         }),
     getBalance: ethereumProcedure
         .input(z.object({ address: z.string() }))
