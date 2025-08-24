@@ -10,7 +10,7 @@ export async function listenForConfirmations() {
     const socket = new ReconnectingWebSocket(process.env.NANO_WEBSOCKET_URL!);
 
     socket.onopen = () => {
-        console.log('WebSocket connected');
+        console.log('Nano WebSocket connected');
         const message = {
             action: 'subscribe',
             topic: 'confirmation',

@@ -4,7 +4,7 @@ import { db } from '../../db';
 import { TRPCError } from '@trpc/server';
 import * as nano from './helper';
 import { eq, and } from 'drizzle-orm';
-// import { listenForConfirmations } from './websocket';
+import { listenForConfirmations } from './websocket';
 import { _addresses } from '../../db/schema';
 import { ENetwork, EProtocol, ProtocolNetworks, type Transfer } from '@packages/shared';
 import Decimal from 'decimal.js';
@@ -94,4 +94,4 @@ export const nanoRouter = router({
         }),
 });
 
-// void listenForConfirmations();
+void listenForConfirmations();

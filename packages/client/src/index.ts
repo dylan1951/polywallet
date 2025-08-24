@@ -47,7 +47,7 @@ export class PolyWallet {
         },
     });
 
-    async *transactions(options: { includeMissed?: boolean } = {}): AsyncGenerator<Transfer, void, void> {
+    async *transfers(options: { includeMissed?: boolean } = {}): AsyncGenerator<Transfer, void, void> {
         const keepAliveTimeout = setTimeout(() => {}, 2147483647);
         try {
             for await (const tx of this.transactionStream) {

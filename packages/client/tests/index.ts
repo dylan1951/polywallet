@@ -125,7 +125,7 @@ export function chainSuite(network: ENetwork, test: typeof bunTest): void {
 
             console.log('Transaction sent ✅');
 
-            for await (const tx of randomWallet.transactions()) {
+            for await (const tx of randomWallet.transfers()) {
                 expect(tx.hash).toBe(hash);
                 expect(tx.asset.network).toBe(network);
                 expect(tx.recipient).toBe(randomAddress);
