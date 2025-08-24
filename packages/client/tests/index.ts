@@ -107,6 +107,9 @@ export function chainSuite(network: ENetwork, test: typeof bunTest): void {
             const balance1 = await randomWallet.balance({ network, address: randomAddress });
             expect(balance1).toDecimalEqual(Decimal(0));
 
+            const transferHistory0 = await randomWallet.transferHistory({ network, address: randomAddress });
+            expect(transferHistory0).toBeArrayOfSize(0);
+
             const { hash, fee, send } = await fundedWallet.transfer({
                 amount: fundedWallet.networks[network].smallest,
                 from: defaultAddress,

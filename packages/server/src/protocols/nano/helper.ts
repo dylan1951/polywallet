@@ -204,16 +204,14 @@ export async function accountsReceivable(accounts: string[]) {
 
     let data:
         | {
-              blocks:
-                  | {
-                        [account: string]: {
-                            [blockHash: string]: {
-                                amount: string;
-                                source: string;
-                            };
-                        };
-                    }
-                  | string;
+              blocks: {
+                  [account: string]: {
+                      [blockHash: string]: {
+                          amount: string;
+                          source: string;
+                      };
+                  };
+              };
           }
         | { error: string };
 
@@ -225,7 +223,7 @@ export async function accountsReceivable(accounts: string[]) {
     if ('error' in data) throw new Error(data.error);
     if (!response.ok || !('blocks' in data)) throw new Error(text);
 
-    if (typeof data.blocks === 'string') {
+    if (typeof data.blocks === 'string' || Array.isArray(data.blocks)) {
         data.blocks = {};
     }
 

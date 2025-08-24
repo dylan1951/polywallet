@@ -74,7 +74,7 @@ export class Nano extends Protocol<EProtocol.Nano> {
         let received = 0n;
         let frontier = null;
 
-        for (const [linkBlock, { amount }] of Object.entries(receivable)) {
+        for (const [linkBlock, { amount }] of Object.entries(receivable ?? {})) {
             frontier = await this.receive({ address: account, linkBlock, amount: BigInt(amount) });
             console.log(`Received ${linkBlock}: ${amount}`);
             received += BigInt(amount);
