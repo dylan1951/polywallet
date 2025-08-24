@@ -50,6 +50,7 @@ export async function listenForConfirmations() {
                 amount: Decimal(amount).div(10n ** 30n),
                 source,
                 hash: blockHash,
+                confirmations: 1,
             };
 
             ee.emit('transaction', txPayload, account.userId);

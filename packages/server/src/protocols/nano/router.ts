@@ -88,6 +88,7 @@ export const nanoRouter = router({
                         hash: entry.type === 'send' ? entry.hash : blocks[entry.hash]!.contents.link,
                         recipient: entry.type === 'send' ? entry.account : address,
                         source: entry.type === 'receive' ? entry.account : address,
+                        confirmations: 1,
                     }) satisfies Transfer
             );
         }),

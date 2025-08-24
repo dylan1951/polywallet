@@ -80,6 +80,8 @@ export const ethereumRouter = router({
                 category: [AssetTransfersCategory.EXTERNAL],
             });
 
+            const latestBlockNumber = await helper.getLatestBlockNumber();
+
             return data.transfers.flatMap((transfer): Transfer[] => {
                 const { value, decimal } = transfer.rawContract;
 
@@ -95,6 +97,7 @@ export const ethereumRouter = router({
                         asset: { network },
                         recipient: getAddress(transfer.to),
                         source: getAddress(transfer.from),
+                        confirmations: latestBlockNumber - Number(transfer.blockNum) + 1,
                     },
                 ];
             });

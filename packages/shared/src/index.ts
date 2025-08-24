@@ -32,4 +32,5 @@ export type Transfer = {
     amount: Decimal;
     source: string;
     hash: string;
+    confirmations: number;
 };

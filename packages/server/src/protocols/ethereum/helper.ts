@@ -8,7 +8,7 @@ class EthereumHelper {
     alchemy: Alchemy;
     provider: ethers.AlchemyProvider;
     addressActivityWebhook?: Webhook;
-    latestBlockNumber?: number;
+    private latestBlockNumber?: number;
 
     constructor(
         public chainId: number,
@@ -23,7 +23,7 @@ class EthereumHelper {
         this.provider = new ethers.AlchemyProvider(this.chainId, process.env.ALCHEMY_API_KEY);
 
         // this.provider
-        //     .on('block', (blockNumber) => {
+        //     .on('block', (blockNumber: number) => {
         //         console.log(`${this.alchemyNetwork} latest block`, blockNumber);
         //         this.latestBlockNumber = blockNumber;
         //     })
@@ -32,8 +32,15 @@ class EthereumHelper {
         //     });
     }
 
+    async getLatestBlockNumber() {
+        if (this.latestBlockNumber !== undefined) {
+            return this.latestBlockNumber;
+        }
+
+        return this.provider.getBlockNumber();
+    }
+
     async watchAddress(address: string) {
-        console.log('WEBHOOK_URL', WEBHOOK_URL);
         if (this.addressActivityWebhook) {
             return this.alchemy.notify.updateWebhook(this.addressActivityWebhook.id, {
                 addAddresses: [address],

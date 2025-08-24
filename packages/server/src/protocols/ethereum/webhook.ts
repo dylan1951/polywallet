@@ -3,7 +3,7 @@ import { Network } from 'alchemy-sdk';
 import Decimal from 'decimal.js';
 import { eq, and } from 'drizzle-orm';
 import { getAddress } from 'ethers';
-import { alchemyNetworkToENetworkMap } from './helper';
+import { alchemyNetworkToENetworkMap, helpers } from './helper';
 import { _addresses } from '../../db/schema';
 import { ee } from '../../index';
 import { db } from '../../db';
@@ -47,6 +47,7 @@ router.post('/alchemy', async (req, res) => {
         return res.status(200).send();
     }
 
+    const latestBlockNumber = await helpers[network].getLatestBlockNumber();
     const activity = notification.event.activity[0];
 
     if (activity === undefined) {
@@ -65,6 +66,7 @@ router.post('/alchemy', async (req, res) => {
             amount: Decimal(activity.rawContract.rawValue).div(Decimal(10).pow(activity.rawContract.decimals)),
             source: getAddress(activity.fromAddress),
             hash: activity.hash,
+            confirmations: latestBlockNumber - Number(activity.blockNum) + 1,
         };
 
         ee.emit('transaction', txPayload, account.userId);
