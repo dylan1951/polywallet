@@ -1,5 +1,5 @@
 import { Protocol } from '../index';
-import { ENetwork, EProtocol } from '@packages/shared';
+import { ENetwork, EProtocol, type Transfer } from '@packages/shared';
 import { AnySigner, CoinType, HexCoding, PrivateKey, Hash } from '../../trust-wallet';
 import { TransactionPreview } from '../../index';
 import { Decimal } from 'decimal.js';
@@ -28,6 +28,10 @@ export class Ethereum extends Protocol<EProtocol.Ethereum> {
     }
 
     multiplier: bigint = 10n ** 18n;
+
+    async transferHistory({ address }: { address: string }): Promise<Transfer[]> {
+        return this.trpc.getTransfers.query({ address, network: this.network });
+    }
 
     async transfer({ from, to, amount }: { from: string; to: string; amount: Decimal }): Promise<TransactionPreview> {
         console.log('Sending transaction', { from, to, amount });

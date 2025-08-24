@@ -1,5 +1,5 @@
 import { CoinType, CoinTypeExt, HDWallet, PrivateKey, PublicKey } from '../trust-wallet';
-import { TransactionPreview } from '../index';
+import { Transfer, TransactionPreview } from '../index';
 import type { TRPCClient, Resolver } from '@trpc/client';
 import type { DefaultErrorShape } from '@trpc/server/unstable-core-do-not-import';
 import type { AppRouter } from 'server/src';
@@ -56,6 +56,7 @@ export interface IProtocol {
     balance(opts: { address: string; contract?: string }): Promise<Decimal>;
     deriveKey(index: number): PrivateKey;
     newAddress(): Promise<string>;
+    transferHistory(opts: { address: string }): Promise<Transfer[]>;
     coinType: CoinType;
     smallest: Decimal;
 }
@@ -84,6 +85,8 @@ export abstract class Protocol<P extends EProtocol> implements IProtocol {
             this.mutex.release();
         });
     }
+
+    abstract transferHistory(opts: { address: string }): Promise<Transfer[]>;
 
     abstract deriveKey(index: number): PrivateKey;
 

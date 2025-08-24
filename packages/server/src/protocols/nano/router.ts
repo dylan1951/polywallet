@@ -6,7 +6,8 @@ import * as nano from './helper';
 import { eq, and } from 'drizzle-orm';
 // import { listenForConfirmations } from './websocket';
 import { _addresses } from '../../db/schema';
-import { ENetwork, EProtocol, ProtocolNetworks } from '@packages/shared';
+import { ENetwork, EProtocol, ProtocolNetworks, type Transfer } from '@packages/shared';
+import Decimal from 'decimal.js';
 
 const nanoProcedure = publicProcedure
     .input(z.object({ network: z.enum(ProtocolNetworks[EProtocol.Nano]) }))
@@ -70,7 +71,26 @@ export const nanoRouter = router({
     accountsReceivable: publicProcedure.input(z.array(z.string())).query(async ({ input: accounts }) => {
         return nano.accountsReceivable(accounts);
     }),
-    acknowledgeReceipt: publicProcedure.input(z.string().describe('txHash')).mutation(async ({ input: txHash }) => {}),
+    getTransfers: nanoProcedure
+        .input(z.object({ address: z.string() }))
+        .query(async ({ input: { address }, ctx: { network } }) => {
+            const { history } = await nano.accountHistory(address);
+
+            const { blocks } = await nano.blocksInfo(
+                history.filter((entry) => entry.type === 'receive').map((entry) => entry.hash)
+            );
+
+            return history.map(
+                (entry) =>
+                    ({
+                        asset: { network },
+                        amount: Decimal(entry.amount).div(10n ** 30n),
+                        hash: entry.type === 'send' ? entry.hash : blocks[entry.hash]!.contents.link,
+                        recipient: entry.type === 'send' ? entry.account : address,
+                        source: entry.type === 'receive' ? entry.account : address,
+                    }) satisfies Transfer
+            );
+        }),
 });
 
 // void listenForConfirmations();

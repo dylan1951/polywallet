@@ -6,7 +6,7 @@ import { WebSocket as WS } from 'ws';
 import { observable } from '@trpc/server/observable';
 import superjson, { SuperJSON } from 'superjson';
 import Decimal from 'decimal.js';
-import { ENetwork, Transaction, EProtocol } from '@packages/shared';
+import { ENetwork, type Transfer, EProtocol } from '@packages/shared';
 import { AppRouter } from 'server/src';
 import { Ethereum } from './protocols/ethereum';
 
@@ -39,15 +39,15 @@ export class PolyWallet {
     public readonly networks: Record<ENetwork, IProtocol>;
     private socket?: Bun.Socket;
 
-    private enqueue!: (tx: Transaction) => void;
+    private enqueue!: (tx: Transfer) => void;
 
-    private transactionStream = new ReadableStream<Transaction>({
+    private transactionStream = new ReadableStream<Transfer>({
         start: (controller) => {
             this.enqueue = controller.enqueue.bind(controller);
         },
     });
 
-    async *transactions(options: { includeMissed?: boolean } = {}): AsyncGenerator<Transaction, void, void> {
+    async *transactions(options: { includeMissed?: boolean } = {}): AsyncGenerator<Transfer, void, void> {
         const keepAliveTimeout = setTimeout(() => {}, 2147483647);
         try {
             for await (const tx of this.transactionStream) {
@@ -70,6 +70,10 @@ export class PolyWallet {
 
     newAddress(opts: { network: ENetwork }): Promise<string> {
         return this.networks[opts.network].newAddress();
+    }
+
+    transferHistory(opts: { network: ENetwork; address: string }): Promise<Transfer[]> {
+        return this.networks[opts.network].transferHistory(opts);
     }
 
     constructor(mnemonic: string, config?: Config) {
@@ -132,4 +136,4 @@ export class PolyWallet {
     }
 }
 
-export { ENetwork, Transaction, EProtocol };
+export { ENetwork, Transfer, EProtocol };

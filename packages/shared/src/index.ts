@@ -26,7 +26,7 @@ export type Asset = {
     contract?: string | null;
 };
 
-export type Transaction = {
+export type Transfer = {
     asset: Asset;
     recipient: string;
     amount: Decimal;

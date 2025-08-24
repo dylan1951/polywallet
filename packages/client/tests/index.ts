@@ -37,7 +37,7 @@ expect.extend({
 
         return {
             pass,
-            message: `expected ${received} to${pass ? '' : ' not'} equal ${expected}`,
+            message: `expected ${received} to${this.isNot ? ' not' : ''} equal ${expected}`,
         };
     },
     toDecimalBeGreaterThan(received, expected: Decimal, customMessage?: string) {
@@ -60,7 +60,7 @@ expect.extend({
 
         return {
             pass,
-            message: `expected ${received} to${pass ? '' : ' not'} be greater than ${expected}`,
+            message: `expected ${received} to${this.isNot ? ' not' : ''} be greater than ${expected}`,
         };
     },
 });
@@ -137,6 +137,15 @@ export function chainSuite(network: ENetwork, test: typeof bunTest): void {
             const balance2 = await randomWallet.balance({ network, address: randomAddress });
 
             expect(balance2).toDecimalEqual(fundedWallet.networks[network].smallest);
+
+            const transferHistory = await randomWallet.transferHistory({ network, address: randomAddress });
+
+            expect(transferHistory).toBeArrayOfSize(1);
+            expect(transferHistory[0].source).toBe(defaultAddress);
+            expect(transferHistory[0].recipient).toBe(randomAddress);
+            expect(transferHistory[0].amount).toDecimalEqual(fundedWallet.networks[network].smallest);
+            expect(transferHistory[0].hash).toBe(hash);
+            expect(transferHistory[0].asset.network).toBe(network);
 
             console.log('Passed ✅');
         },

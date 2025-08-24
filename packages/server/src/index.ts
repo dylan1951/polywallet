@@ -9,14 +9,14 @@ import { tracked } from '@trpc/server';
 import { _transactions } from './db/schema';
 import { db } from './db';
 import { and, eq, lte } from 'drizzle-orm';
-import { Transaction } from '@packages/shared';
+import { type Transfer } from '@packages/shared';
 import { ethereumRouter } from './protocols/ethereum/router';
 import webhookRouter from './protocols/ethereum/webhook';
 import express from 'express';
 import * as http from 'node:http';
 
 export const ee = new EventEmitter<{
-    transaction: [tx: Transaction, userId: string];
+    transaction: [tx: Transfer, userId: string];
 }>();
 
 const appRouter = router({

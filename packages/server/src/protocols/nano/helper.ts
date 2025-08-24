@@ -30,7 +30,7 @@ async function rpc<ResponseType, PayloadType extends { action: string }>(payload
 
 export async function accountInfo(account: string) {
     type PayloadType = {
-        action: string;
+        action: 'account_info';
         include_confirmed: 'true' | 'false';
         receivable: 'true' | 'false';
         account: string;
@@ -76,6 +76,78 @@ export async function accountInfo(account: string) {
         balance: BigInt(data.balance),
         receivable: BigInt(data.receivable),
     };
+}
+
+export async function accountHistory(account: string) {
+    type ResponseType = {
+        account: string;
+        history: [
+            {
+                type: 'send' | 'receive';
+                account: string;
+                amount: string;
+                amount_nano: string;
+                local_timestamp: string;
+                height: string;
+                hash: string;
+                confirmed: string;
+                username: string;
+            },
+        ];
+        previous: string;
+    };
+
+    type PayloadType = {
+        action: 'account_history';
+        account: string;
+        count: string;
+    };
+
+    const data = await rpc<ResponseType, PayloadType>({
+        action: 'account_history',
+        account,
+        count: '-1',
+    });
+
+    if ('error' in data) {
+        throw new Error(data.error);
+    }
+
+    if (data.account !== account) {
+        throw new Error(JSON.stringify(data));
+    }
+
+    return data;
+}
+
+export async function blocksInfo(hashes: string[]) {
+    type PayloadType = {
+        action: 'blocks_info';
+        json_block: 'true';
+        hashes: string[];
+    };
+
+    type ResponseType = {
+        blocks: {
+            [hash: string]: {
+                contents: {
+                    link: string;
+                };
+            };
+        };
+    };
+
+    const data = await rpc<ResponseType, PayloadType>({
+        action: 'blocks_info',
+        json_block: 'true',
+        hashes,
+    });
+
+    if ('error' in data) {
+        throw new Error(data.error);
+    }
+
+    return data;
 }
 
 export async function workGenerate(hash: string) {

@@ -2,7 +2,7 @@ import { Account, Protocol } from '../index';
 import { AnySigner, CoinType, CoinTypeExt, HexCoding, PrivateKey } from '../../trust-wallet';
 import { TW } from '@trustwallet/wallet-core';
 import Decimal from 'decimal.js';
-import { EProtocol } from '@packages/shared';
+import { EProtocol, type Transfer } from '@packages/shared';
 import { TransactionPreview } from '../../index';
 
 export class Nano extends Protocol<EProtocol.Nano> {
@@ -146,5 +146,10 @@ export class Nano extends Protocol<EProtocol.Nano> {
     async balance({ address }: { address: string }): Promise<Decimal> {
         const { balance, receivable } = await this.trpc.getBalance.query(address);
         return Decimal(balance + receivable).div(this.multiplier);
+    }
+
+    async transferHistory({ address }: { address: string }): Promise<Transfer[]> {
+        await this.receiveAll(address);
+        return this.trpc.getTransfers.query({ address, network: this.network });
     }
 }
