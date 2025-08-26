@@ -2,7 +2,7 @@ import { publicProcedure, router } from '../../trpc';
 import { db } from '../../db';
 import { z } from 'zod';
 import { helpers } from './helper';
-import { _addresses, network } from '../../db/schema';
+import { _addresses } from '../../db/schema';
 import { eq, and } from 'drizzle-orm';
 import { ProtocolNetworks, EProtocol, type Transfer } from '@packages/shared';
 import { AssetTransfersCategory } from 'alchemy-sdk';
@@ -92,11 +92,11 @@ export const ethereumRouter = router({
 
                 return [
                     {
-                        hash: transfer.hash,
+                        id: transfer.hash,
                         amount: Decimal(value).div(Decimal(10).pow(decimal)),
                         asset: { network },
-                        recipient: getAddress(transfer.to),
-                        source: getAddress(transfer.from),
+                        to: getAddress(transfer.to),
+                        from: getAddress(transfer.from),
                         confirmations: latestBlockNumber - Number(transfer.blockNum) + 1,
                     },
                 ];

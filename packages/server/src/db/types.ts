@@ -1,4 +1,5 @@
 import { customType } from 'drizzle-orm/pg-core';
+import Decimal from 'decimal.js';
 
 export const raw = customType<{ data: bigint; driverData: string }>({
     dataType() {
@@ -9,6 +10,18 @@ export const raw = customType<{ data: bigint; driverData: string }>({
     },
     fromDriver(value: string) {
         return BigInt(value);
+    },
+});
+
+export const balance = customType<{ data: Decimal; driverData: string }>({
+    dataType() {
+        return 'numeric(50,30)';
+    },
+    toDriver(value: Decimal) {
+        return value.toFixed();
+    },
+    fromDriver(value: string) {
+        return Decimal(value);
     },
 });
 

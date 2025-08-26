@@ -29,31 +29,32 @@ export async function listenForConfirmations() {
             return;
         }
 
-        const recipient: string = data.message.block.link_as_account;
+        const to: string = data.message.block.link_as_account;
         const amount: string = data.message.amount;
         const blockHash: string = data.message.hash;
-        const source: string = data.message.account;
+        const from: string = data.message.account;
 
         const accounts = await db.query._addresses.findMany({
             where: and(
-                or(eq(_addresses.address, recipient), eq(_addresses.address, source)),
+                or(eq(_addresses.address, to), eq(_addresses.address, from)),
                 eq(_addresses.network, ENetwork.NANO_MAINNET)
             ),
         });
 
         for (const account of accounts) {
-            console.log("Emitting 'transaction' event");
+            console.log("Emitting 'transfer' event");
 
             const txPayload = {
                 asset: { network: ENetwork.NANO_MAINNET },
-                recipient,
+                to,
                 amount: Decimal(amount).div(10n ** 30n),
-                source,
-                hash: blockHash,
+                from,
+                id: blockHash,
                 confirmations: 1,
+                blockNum: 1,
             };
 
-            ee.emit('transaction', txPayload, account.userId);
+            ee.emit('transfer', txPayload, account.userId);
         }
     };
 

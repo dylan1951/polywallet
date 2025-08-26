@@ -62,14 +62,15 @@ router.post('/alchemy', async (req, res) => {
     for (const account of accounts) {
         const txPayload = {
             asset: { network },
-            recipient: getAddress(activity.toAddress),
+            to: getAddress(activity.toAddress),
             amount: Decimal(activity.rawContract.rawValue).div(Decimal(10).pow(activity.rawContract.decimals)),
-            source: getAddress(activity.fromAddress),
-            hash: activity.hash,
+            from: getAddress(activity.fromAddress),
+            id: activity.hash,
             confirmations: latestBlockNumber - Number(activity.blockNum) + 1,
+            blockNum: Number(activity.blockNum),
         };
 
-        ee.emit('transaction', txPayload, account.userId);
+        ee.emit('transfer', txPayload, account.userId);
     }
 
     res.status(200).send();

@@ -1,5 +1,5 @@
 import { CoinTypeExt, HDWallet } from '../src/trust-wallet';
-import { PolyWallet } from '../src';
+import { NetworkConfirmationThresholds, PolyWallet } from '../src';
 import { expect } from 'bun:test';
 import { ENetwork } from '@packages/shared';
 import Decimal from 'decimal.js';
@@ -126,16 +126,20 @@ export function chainSuite(network: ENetwork, test: typeof bunTest): void {
             console.log('Transaction sent ✅');
 
             for await (const tx of randomWallet.transfers()) {
-                expect(tx.hash).toBe(hash);
-                expect(tx.asset.network).toBe(network);
-                expect(tx.recipient).toBe(randomAddress);
-                expect(tx.amount).toDecimalEqual(fundedWallet.networks[network].smallest);
-                expect(tx.source).toBe(defaultAddress);
-                expect(tx.asset.contract).not.toBeDefined();
-                break;
-            }
+                console.log(tx);
 
-            console.log('Transaction received ✅');
+                expect(tx.id).toBe(hash);
+                expect(tx.asset.network).toBe(network);
+                expect(tx.to).toBe(randomAddress);
+                expect(tx.amount).toDecimalEqual(fundedWallet.networks[network].smallest);
+                expect(tx.from).toBe(defaultAddress);
+                expect(tx.asset.contract).not.toBeDefined();
+
+                if (tx.confirmations >= NetworkConfirmationThresholds[network]) {
+                    console.log('Transaction confirmed ✅');
+                    break;
+                }
+            }
 
             const balance2 = await randomWallet.balance({ network, address: randomAddress });
 
@@ -144,14 +148,14 @@ export function chainSuite(network: ENetwork, test: typeof bunTest): void {
             const transferHistory = await randomWallet.transferHistory({ network, address: randomAddress });
 
             expect(transferHistory).toBeArrayOfSize(1);
-            expect(transferHistory[0].source).toBe(defaultAddress);
-            expect(transferHistory[0].recipient).toBe(randomAddress);
+            expect(transferHistory[0].from).toBe(defaultAddress);
+            expect(transferHistory[0].to).toBe(randomAddress);
             expect(transferHistory[0].amount).toDecimalEqual(fundedWallet.networks[network].smallest);
-            expect(transferHistory[0].hash).toBe(hash);
+            expect(transferHistory[0].id).toBe(hash);
             expect(transferHistory[0].asset.network).toBe(network);
 
             console.log('Passed ✅');
         },
-        { timeout: 30_000 }
+        { timeout: 60_000 }
     );
 }

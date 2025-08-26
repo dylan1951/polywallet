@@ -21,16 +21,24 @@ export const ProtocolNetworks: ProtocolNetworks = {
     [EProtocol.Ethereum]: [ENetwork.POLYGON_AMOY] as const,
 } as const;
 
+export const NetworkConfirmationThresholds: {
+    readonly [ENetwork.POLYGON_AMOY]: 12;
+    readonly [ENetwork.NANO_MAINNET]: 1;
+} = {
+    [ENetwork.POLYGON_AMOY]: 12 as const,
+    [ENetwork.NANO_MAINNET]: 1 as const,
+};
+
 export type Asset = {
     network: ENetwork;
     contract?: string | null;
 };
 
 export type Transfer = {
-    asset: Asset;
-    recipient: string;
+    id: string;
     amount: Decimal;
-    source: string;
-    hash: string;
+    asset: Asset;
+    to: string;
+    from: string;
     confirmations: number;
 };

@@ -1,6 +1,6 @@
-import { integer, pgTable, text, unique, pgEnum, boolean, timestamp } from 'drizzle-orm/pg-core';
+import { integer, pgTable, text, unique, pgEnum, boolean, timestamp, primaryKey } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
-import { raw, hash } from './types';
+import { raw, hash, balance } from './types';
 import { ENetwork } from '@packages/shared';
 
 export const _users = pgTable('users', {
@@ -10,22 +10,20 @@ export const _users = pgTable('users', {
     webhookLastRenewed: timestamp(),
 });
 
-export const userRelations = relations(_users, ({ many }) => ({}));
+export const userRelations = relations(_users, ({ many }) => ({
+    addresses: many(_addresses),
+}));
 
 export const network = pgEnum('network', ENetwork);
 
-export const _transactions = pgTable('transactions', {
-    id: integer().primaryKey().generatedAlwaysAsIdentity(),
+export const _transfers = pgTable('transfers', {
+    id: text().primaryKey(),
     network: network().notNull(),
     contract: text(),
-    userId: text()
-        .references(() => _users.id)
-        .notNull(),
-    address: text().notNull(),
-    amount: raw().notNull(),
-    hash: hash().notNull(),
-    acknowledged: boolean().notNull().default(false),
-    source: text().notNull(),
+    to: text().notNull(),
+    from: text().notNull(),
+    amount: balance().notNull(),
+    blockNum: integer().notNull(),
 });
 
 export const _addresses = pgTable(
@@ -37,7 +35,13 @@ export const _addresses = pgTable(
             .notNull(),
         index: integer().notNull(),
         network: network().notNull(),
-        watching: boolean().notNull().default(true),
     },
     (t) => [unique().on(t.userId, t.index, t.network)]
 );
+
+export const addressRelations = relations(_addresses, ({ one }) => ({
+    user: one(_users, {
+        fields: [_addresses.userId],
+        references: [_users.id],
+    }),
+}));

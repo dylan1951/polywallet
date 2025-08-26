@@ -6,7 +6,7 @@ import { WebSocket as WS } from 'ws';
 import { observable } from '@trpc/server/observable';
 import superjson, { SuperJSON } from 'superjson';
 import Decimal from 'decimal.js';
-import { ENetwork, type Transfer, EProtocol } from '@packages/shared';
+import { ENetwork, type Transfer, EProtocol, NetworkConfirmationThresholds } from '@packages/shared';
 import { AppRouter } from 'server/src';
 import { Ethereum } from './protocols/ethereum';
 
@@ -52,7 +52,7 @@ export class PolyWallet {
         try {
             for await (const tx of this.transactionStream) {
                 // TODO: Send ack to server
-                console.log(`[PolyWallet] transaction read → ${tx.hash}`);
+                // console.log(`[PolyWallet] transaction read → ${tx.id}`);
                 yield tx;
             }
         } finally {
@@ -124,7 +124,7 @@ export class PolyWallet {
 
         this.trpc.onTransaction.subscribe(undefined, {
             onData: (event) => {
-                console.log('Received transaction from server: ', event.data);
+                // console.log('Received transaction from server: ', event.data);
                 this.enqueue(event.data);
             },
         });
@@ -136,4 +136,4 @@ export class PolyWallet {
     }
 }
 
-export { ENetwork, Transfer, EProtocol };
+export { ENetwork, Transfer, EProtocol, NetworkConfirmationThresholds };

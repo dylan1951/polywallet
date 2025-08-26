@@ -6,9 +6,8 @@ import { createContext } from './context';
 import { z } from 'zod';
 import EventEmitter, { on } from 'events';
 import { tracked } from '@trpc/server';
-import { _transactions } from './db/schema';
+import { _transfers } from './db/schema';
 import { db } from './db';
-import { and, eq, lte } from 'drizzle-orm';
 import { type Transfer } from '@packages/shared';
 import { ethereumRouter } from './protocols/ethereum/router';
 import webhookRouter from './protocols/ethereum/webhook';
@@ -16,8 +15,28 @@ import express from 'express';
 import * as http from 'node:http';
 
 export const ee = new EventEmitter<{
-    transaction: [tx: Transfer, userId: string];
+    transfer: [tx: Transfer & { blockNum: number }, userId: string];
 }>();
+
+ee.on('transfer', async (tx) => {
+    await db
+        .insert(_transfers)
+        .values({
+            network: tx.asset.network,
+            to: tx.to,
+            from: tx.from,
+            amount: tx.amount,
+            blockNum: tx.blockNum,
+            id: tx.id,
+        })
+        .onConflictDoUpdate({
+            target: _transfers.id,
+            set: {
+                // In case of re-org?
+                blockNum: tx.blockNum,
+            },
+        });
+});
 
 const appRouter = router({
     nano: nanoRouter,
@@ -26,23 +45,15 @@ const appRouter = router({
         .input(z.object({ lastEventId: z.string().nullish() }).optional())
         .subscription(async function* ({ signal, ctx: { user } }) {
             try {
-                for await (const [tx, userId] of on(ee, 'transaction', { signal })) {
+                for await (const [tx, userId] of on(ee, 'transfer', { signal })) {
                     if (user.id === userId) {
-                        console.log('Yielding transaction to subscription');
-                        yield tracked(tx.hash, tx);
+                        console.log(`Yielding transfer to subscription for user ${userId}`, tx);
+                        yield tracked(tx.id, tx);
                     }
                 }
             } finally {
                 console.log('Subscription closed');
             }
-        }),
-    acknowledge: publicProcedure
-        .input(z.object({ id: z.number() }))
-        .mutation(async ({ input: { id }, ctx: { user } }) => {
-            await db
-                .update(_transactions)
-                .set({ acknowledged: true })
-                .where(and(eq(_transactions.userId, user.id), lte(_transactions.id, id)));
         }),
 });
 

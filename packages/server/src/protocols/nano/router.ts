@@ -1,12 +1,11 @@
 import { publicProcedure, router } from '../../trpc';
 import { z } from 'zod';
 import { db } from '../../db';
-import { TRPCError } from '@trpc/server';
 import * as nano from './helper';
 import { eq, and } from 'drizzle-orm';
 import { listenForConfirmations } from './websocket';
 import { _addresses } from '../../db/schema';
-import { ENetwork, EProtocol, ProtocolNetworks, type Transfer } from '@packages/shared';
+import { EProtocol, ProtocolNetworks, type Transfer } from '@packages/shared';
 import Decimal from 'decimal.js';
 
 const nanoProcedure = publicProcedure
@@ -85,9 +84,9 @@ export const nanoRouter = router({
                     ({
                         asset: { network },
                         amount: Decimal(entry.amount).div(10n ** 30n),
-                        hash: entry.type === 'send' ? entry.hash : blocks[entry.hash]!.contents.link,
-                        recipient: entry.type === 'send' ? entry.account : address,
-                        source: entry.type === 'receive' ? entry.account : address,
+                        id: entry.type === 'send' ? entry.hash : blocks[entry.hash]!.contents.link,
+                        to: entry.type === 'send' ? entry.account : address,
+                        from: entry.type === 'receive' ? entry.account : address,
                         confirmations: 1,
                     }) satisfies Transfer
             );
