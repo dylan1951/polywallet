@@ -1,6 +1,6 @@
 {
     "name": "@dylan1951/polywallet",
-    "version": "0.20.0",
+    "version": "0.22.0",
     "type": "module",
     "files": [
         "dist"
@@ -15,7 +15,7 @@
     },
     "dependencies": {
         "@trpc/client": "^11.1.1",
-        "@trustwallet/wallet-core": "^4.2.12",
+        "@trustwallet/wallet-core": "4.3.6",
         "async-mutex": "^0.5.0",
         "decimal.js": "^10.6.0",
         "superjson": "^2.2.2"

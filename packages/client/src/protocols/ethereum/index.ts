@@ -34,6 +34,7 @@ export class Ethereum extends Protocol<EProtocol.Ethereum> {
     }
 
     async transfer({ from, to, amount }: { from: string; to: string; amount: Decimal }): Promise<TransactionPreview> {
+        await this.mutex.waitForUnlock();
         console.log('Sending transaction', { from, to, amount });
         const account = this.accounts.get(from);
 
