@@ -13,6 +13,7 @@ import { ethereumRouter } from './protocols/ethereum/router';
 import webhookRouter from './protocols/ethereum/webhook';
 import express from 'express';
 import * as http from 'node:http';
+import { bitcoinRouter } from './protocols/bitcoin/router';
 
 export const ee = new EventEmitter<{
     transfer: [tx: Transfer & { blockNum: number }, userId: string];
@@ -41,6 +42,7 @@ ee.on('transfer', async (tx) => {
 const appRouter = router({
     nano: nanoRouter,
     ethereum: ethereumRouter,
+    bitcoin: bitcoinRouter,
     onTransaction: publicProcedure
         .input(z.object({ lastEventId: z.string().nullish() }).optional())
         .subscription(async function* ({ signal, ctx: { user } }) {

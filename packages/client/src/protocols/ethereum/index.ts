@@ -18,6 +18,8 @@ export class Ethereum extends Protocol<EProtocol.Ethereum> {
         switch (this.network) {
             case ENetwork.POLYGON_AMOY:
                 return 80002;
+            case ENetwork.ETH_MAINNET:
+                return 1;
         }
     }
 

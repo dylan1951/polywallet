@@ -6,9 +6,10 @@ import { WebSocket as WS } from 'ws';
 import { observable } from '@trpc/server/observable';
 import superjson, { SuperJSON } from 'superjson';
 import Decimal from 'decimal.js';
-import { ENetwork, type Transfer, EProtocol, NetworkConfirmationThresholds } from '@packages/shared';
+import { ENetwork, EProtocol, NetworkConfirmationThresholds, type Transfer } from '@packages/shared';
 import { AppRouter } from 'server/src';
 import { Ethereum } from './protocols/ethereum';
+import { Bitcoin } from './protocols/bitcoin';
 
 SuperJSON.registerCustom<Decimal, string>(
     {
@@ -132,6 +133,9 @@ export class PolyWallet {
         this.networks = {
             [ENetwork.NANO_MAINNET]: new Nano(this.wallet, this.trpc.nano, ENetwork.NANO_MAINNET),
             [ENetwork.POLYGON_AMOY]: new Ethereum(this.wallet, this.trpc.ethereum, ENetwork.POLYGON_AMOY),
+            [ENetwork.ETH_MAINNET]: new Ethereum(this.wallet, this.trpc.ethereum, ENetwork.ETH_MAINNET),
+            [ENetwork.BTC_MAINNET]: new Bitcoin(this.wallet, this.trpc.bitcoin, ENetwork.BTC_MAINNET),
+            [ENetwork.BTC_TESTNET4]: new Bitcoin(this.wallet, this.trpc.bitcoin, ENetwork.BTC_TESTNET4),
         };
     }
 }
