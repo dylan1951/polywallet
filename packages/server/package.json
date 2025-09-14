@@ -3,7 +3,7 @@
     "version": "1.0.50",
     "scripts": {
         "dev": "bun run --watch src/index.ts",
-        "db:migrate": "bunx drizzle-kit push --config=drizzle.config.ts",
+        "db:migrate": "bunx drizzle-kit push --config=drizzle.config.ts --verbose",
         "start": "bun run db:migrate && bun run src/index.ts"
     },
     "dependencies": {
