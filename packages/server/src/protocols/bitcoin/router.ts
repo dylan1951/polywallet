@@ -1,5 +1,5 @@
 import { publicProcedure, router } from '../../trpc';
-import { z } from 'zod/index';
+import { z } from 'zod';
 import { EProtocol, ProtocolNetworks } from '@packages/shared';
 import { db } from '../../db';
 import { _addresses } from '../../db/schema';
