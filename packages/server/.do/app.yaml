@@ -11,7 +11,7 @@ ingress:
               authority:
                   exact: ''
               path:
-                  prefix: /api
+                  prefix: /
 name: polywallet
 region: syd
 services:
