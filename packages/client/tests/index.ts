@@ -75,7 +75,7 @@ export function chainSuite(network: ENetwork, test: typeof bunTest): void {
         ).toBeTruthy();
 
         if (!process.env.SERVER_URL) {
-            console.log('SERVER_URL environment variable is not set, using wss://polywallet.dev/api');
+            console.log('SERVER_URL environment variable is not set, using wss://api.polywallet.dev');
         }
     });
 
