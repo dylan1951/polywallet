@@ -1,7 +1,6 @@
 domains:
-    - domain: polywallet.dev
+    - domain: api.polywallet.dev
       type: PRIMARY
-      zone: polywallet.dev
 features:
     - buildpack-stack=ubuntu-22
 ingress:
