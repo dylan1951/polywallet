@@ -1,12 +1,20 @@
 {
     "name": "@dylan1951/polywallet",
-    "version": "0.23.0",
+    "version": "0.24.0",
     "type": "module",
     "files": [
         "dist"
     ],
     "module": "./dist/index.js",
+    "main": "./dist/index.js",
     "types": "./dist/index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js",
+            "default": "./dist/index.js"
+        }
+    },
     "devDependencies": {
         "@types/bun": "latest",
         "@types/node": "22.8.5",
