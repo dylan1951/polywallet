@@ -57,6 +57,7 @@ const appRouter = router({
                 console.log('Subscription closed');
             }
         }),
+    healthCheck: publicProcedure.query(() => ({ ok: true })),
 });
 
 // Export type router type signature,
