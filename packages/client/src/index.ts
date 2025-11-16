@@ -39,6 +39,7 @@ export class PolyWallet {
     private readonly trpc;
     public readonly networks: Record<ENetwork, IProtocol>;
     private socket?: Bun.Socket;
+    public wsClient: ReturnType<typeof createWSClient>;
 
     private enqueue!: (tx: Transfer) => void;
 
@@ -77,11 +78,6 @@ export class PolyWallet {
         return this.networks[opts.network].transferHistory(opts);
     }
 
-    async healthCheck(): Promise<boolean> {
-        const data = await this.trpc.healthCheck.query();
-        return data.ok;
-    }
-
     constructor(mnemonic: string, config?: Config) {
         this.wallet = HDWallet.createWithMnemonic(mnemonic, config?.passphrase ?? '');
         this.id = HexCoding.encode(Hash.sha256(this.wallet.seed())).slice(2);
@@ -108,11 +104,11 @@ export class PolyWallet {
             };
         };
 
-        const wsClient = createWSClient({
+        this.wsClient = createWSClient({
             WebSocket: WS as unknown as typeof WebSocket,
             url: config?.apiUrl || process.env.SERVER_URL || `wss://api.polywallet.dev`,
             onOpen: () => {
-                this.socket = wsClient['activeConnection'].ws._socket;
+                this.socket = this.wsClient['activeConnection'].ws._socket;
                 this.socket?.unref();
             },
             connectionParams: { id: this.id },
@@ -122,7 +118,7 @@ export class PolyWallet {
             links: [
                 ensureProcessLives,
                 wsLink<AppRouter>({
-                    client: wsClient,
+                    client: this.wsClient,
                     transformer: superjson,
                 }),
             ],
