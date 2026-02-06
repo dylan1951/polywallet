@@ -8,8 +8,6 @@ ingress:
         - component:
               name: api
           match:
-              authority:
-                  exact: ''
               path:
                   prefix: /
 name: polywallet
