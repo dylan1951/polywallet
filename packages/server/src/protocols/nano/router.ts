@@ -97,4 +97,4 @@ export const nanoRouter = router({
     }),
 });
 
-void listenForConfirmations();
+// void listenForConfirmations();
