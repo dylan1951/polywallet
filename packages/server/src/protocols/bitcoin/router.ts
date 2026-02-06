@@ -37,4 +37,5 @@ export const bitcoinRouter = router({
             },
         });
     }),
+    healthCheck: bitcoinProcedure.query(() => false),
 });

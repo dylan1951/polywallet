@@ -14,6 +14,7 @@ class EthereumHelper {
     addressActivityWebhook?: Webhook;
     confirmationThreshold: number;
     private latestBlockNumber?: number;
+    private lastBlockAtMs?: number;
 
     constructor(
         public chainId: number,
@@ -34,6 +35,7 @@ class EthereumHelper {
             .on('block', async (blockNumber: number) => {
                 console.log(`${this.alchemyNetwork} latest block`, blockNumber);
                 this.latestBlockNumber = blockNumber;
+                this.lastBlockAtMs = Date.now();
 
                 const transfers = await db.query._transfers.findMany({
                     where: and(
@@ -67,6 +69,10 @@ class EthereumHelper {
             .then(() => {
                 console.log(`Started Alchemy 'newHeads' subscription for ${this.alchemyNetwork}`);
             });
+    }
+
+    isHealthy(maxAgeMs: number = 60_000): boolean {
+        return this.lastBlockAtMs !== undefined && Date.now() - this.lastBlockAtMs < maxAgeMs;
     }
 
     async getLatestBlockNumber() {

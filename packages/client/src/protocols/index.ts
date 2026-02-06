@@ -48,6 +48,16 @@ type Client<P extends EProtocol> = TRPCClient<AppRouter>[P] & {
             transformer: true;
         }>;
     };
+    healthCheck: {
+        query: Resolver<{
+            input: {
+                network: ProtocolNetworks[P][number];
+            };
+            output: boolean;
+            errorShape: DefaultErrorShape;
+            transformer: true;
+        }>;
+    };
 };
 
 export interface IProtocol {
@@ -59,6 +69,7 @@ export interface IProtocol {
     transferHistory(opts: { address: string }): Promise<Transfer[]>;
     coinType: CoinType;
     smallest: Decimal;
+    healthCheck(): Promise<boolean>;
 }
 
 export abstract class Protocol<P extends EProtocol> implements IProtocol {
@@ -84,6 +95,10 @@ export abstract class Protocol<P extends EProtocol> implements IProtocol {
 
             this.mutex.release();
         });
+    }
+
+    healthCheck(): Promise<boolean> {
+        return this.trpc.healthCheck.query({ network: this.network });
     }
 
     abstract transferHistory(opts: { address: string }): Promise<Transfer[]>;

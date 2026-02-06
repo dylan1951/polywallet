@@ -91,6 +91,10 @@ export const nanoRouter = router({
                     }) satisfies Transfer
             );
         }),
+    healthCheck: nanoProcedure.query(async () => {
+        const version = await nano.version();
+        return version.network === 'live';
+    }),
 });
 
 void listenForConfirmations();

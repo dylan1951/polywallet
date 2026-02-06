@@ -78,6 +78,18 @@ export class PolyWallet {
         return this.networks[opts.network].transferHistory(opts);
     }
 
+    async healthCheck(): Promise<Record<ENetwork, boolean>> {
+        const results: Record<string, boolean> = {};
+
+        await Promise.all(
+            Object.entries(this.networks).map(async ([network, protocol]) => {
+                results[network] = await protocol.healthCheck();
+            })
+        );
+
+        return results;
+    }
+
     constructor(mnemonic: string, config?: Config) {
         this.wallet = HDWallet.createWithMnemonic(mnemonic, config?.passphrase ?? '');
         this.id = HexCoding.encode(Hash.sha256(this.wallet.seed())).slice(2);

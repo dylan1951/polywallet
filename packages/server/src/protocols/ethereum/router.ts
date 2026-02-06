@@ -102,4 +102,5 @@ export const ethereumRouter = router({
                 ];
             });
         }),
+    healthCheck: ethereumProcedure.query(async ({ ctx: { helper } }) => helper.isHealthy()),
 });

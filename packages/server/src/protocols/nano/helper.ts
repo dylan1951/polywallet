@@ -379,3 +379,19 @@ export async function processBlock(block: {
 
     return data.hash;
 }
+
+export async function version() {
+    type ResponseType = {
+        rpc_version: '1';
+        store_version: string;
+        protocol_version: string;
+        node_vendor: string;
+        store_vendor: string;
+        network: 'live';
+    };
+
+    const response = await rpc<ResponseType, { action: 'version' }>({ action: 'version' });
+    if ('error' in response) throw new Error(response.error);
+
+    return response;
+}
