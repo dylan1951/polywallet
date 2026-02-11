@@ -1,6 +1,6 @@
 {
     "name": "@dylan1951/polywallet",
-    "version": "0.28.0",
+    "version": "0.29.0",
     "type": "module",
     "files": [
         "dist"
@@ -18,15 +18,15 @@
     "devDependencies": {
         "@types/bun": "latest",
         "@types/node": "22.8.5",
-        "bunup": "^0.9.1",
+        "bunup": "^0.16.26",
         "@packages/shared": "workspace:*"
     },
     "dependencies": {
-        "@trpc/client": "^11.1.1",
-        "@trustwallet/wallet-core": "4.3.6",
+        "@trpc/client": "^11.10.0",
+        "@trustwallet/wallet-core": "4.6.0",
         "async-mutex": "^0.5.0",
         "decimal.js": "^10.6.0",
-        "superjson": "^2.2.2"
+        "superjson": "^2.2.6"
     },
     "bunup": {
         "entry": [
