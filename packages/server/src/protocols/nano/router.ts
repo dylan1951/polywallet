@@ -1,12 +1,12 @@
 import { publicProcedure, router } from '../../trpc';
 import { z } from 'zod';
 import { db } from '../../db';
-import * as nano from './helper';
 import { eq, and } from 'drizzle-orm';
 import { listenForConfirmations } from './websocket';
 import { _addresses } from '../../db/schema';
 import { EProtocol, ProtocolNetworks, type Transfer } from '@packages/shared';
 import Decimal from 'decimal.js';
+import { helpers } from './helper';
 
 const nanoProcedure = publicProcedure
     .input(z.object({ network: z.enum(ProtocolNetworks[EProtocol.Nano]) }))
@@ -14,13 +14,14 @@ const nanoProcedure = publicProcedure
         return next({
             ctx: {
                 user,
+                helper: helpers[network],
                 network,
             },
         });
     });
 
 export const nanoRouter = router({
-    getAddresses: nanoProcedure.query(async ({ ctx: { user, network } }) => {
+    getAddresses: nanoProcedure.query(async ({ ctx: { user, network, helper } }) => {
         return db.query._addresses.findMany({
             where: and(eq(_addresses.userId, user.id), eq(_addresses.network, network)),
             columns: {
@@ -32,7 +33,7 @@ export const nanoRouter = router({
     }),
     addAddress: nanoProcedure
         .input(z.object({ address: z.string(), index: z.number() }))
-        .mutation(async ({ ctx: { user, network }, input: { address, index } }) => {
+        .mutation(async ({ ctx: { user, network, helper }, input: { address, index } }) => {
             await db.insert(_addresses).values({
                 userId: user.id,
                 address,
@@ -40,17 +41,23 @@ export const nanoRouter = router({
                 network,
             });
         }),
-    getAccountInfo: publicProcedure.input(z.string().describe('address')).query(async ({ input: address }) => {
-        return await nano.accountInfo(address);
-    }),
-    getBalance: publicProcedure.input(z.string().describe('address')).query(async ({ input: address }) => {
-        const result = await nano.accountsBalances([address]);
-        return result[address];
-    }),
-    workGenerate: publicProcedure.input(z.string().describe('hash')).mutation(async ({ input: hash }) => {
-        return nano.workGenerate(hash);
-    }),
-    processBlock: publicProcedure
+    getAccountInfo: nanoProcedure
+        .input(z.object({ address: z.string() }))
+        .query(async ({ input: { address }, ctx: { helper } }) => {
+            return await helper.accountInfo(address);
+        }),
+    getBalance: nanoProcedure
+        .input(z.object({ address: z.string() }))
+        .query(async ({ input: { address }, ctx: { helper } }) => {
+            const result = await helper.accountsBalances([address]);
+            return result[address];
+        }),
+    workGenerate: nanoProcedure
+        .input(z.object({ hash: z.string() }))
+        .mutation(async ({ input: { hash }, ctx: { helper } }) => {
+            return helper.workGenerate(hash);
+        }),
+    processBlock: nanoProcedure
         .input(
             z.object({
                 type: z.literal('state'),
@@ -64,18 +71,20 @@ export const nanoRouter = router({
                 work: z.string(),
             })
         )
-        .mutation(async ({ input: block }) => {
-            await nano.processBlock(block);
+        .mutation(async ({ input: block, ctx: { helper } }) => {
+            await helper.processBlock(block);
         }),
-    accountsReceivable: publicProcedure.input(z.array(z.string())).query(async ({ input: accounts }) => {
-        return nano.accountsReceivable(accounts);
-    }),
+    accountsReceivable: nanoProcedure
+        .input(z.object({ accounts: z.array(z.string()) }))
+        .query(async ({ input: { accounts }, ctx: { helper } }) => {
+            return helper.accountsReceivable(accounts);
+        }),
     getTransfers: nanoProcedure
         .input(z.object({ address: z.string() }))
-        .query(async ({ input: { address }, ctx: { network } }) => {
-            const { history } = await nano.accountHistory(address);
+        .query(async ({ input: { address }, ctx: { network, helper } }) => {
+            const { history } = await helper.accountHistory(address);
 
-            const { blocks } = await nano.blocksInfo(
+            const { blocks } = await helper.blocksInfo(
                 history.filter((entry) => entry.type === 'receive').map((entry) => entry.hash)
             );
 
@@ -91,8 +100,8 @@ export const nanoRouter = router({
                     }) satisfies Transfer
             );
         }),
-    healthCheck: nanoProcedure.query(async () => {
-        const version = await nano.version();
+    healthCheck: nanoProcedure.query(async ({ ctx: { helper } }) => {
+        const version = await helper.version();
         return version.network === 'live';
     }),
 });

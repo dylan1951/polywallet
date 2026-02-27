@@ -145,6 +145,7 @@ export class PolyWallet {
 
         this.networks = {
             [ENetwork.NANO_MAINNET]: new Nano(this.wallet, this.trpc.nano, ENetwork.NANO_MAINNET),
+            [ENetwork.BANANO_MAINNET]: new Nano(this.wallet, this.trpc.nano, ENetwork.BANANO_MAINNET),
             [ENetwork.POLYGON_AMOY]: new Ethereum(this.wallet, this.trpc.ethereum, ENetwork.POLYGON_AMOY),
             [ENetwork.ETH_MAINNET]: new Ethereum(this.wallet, this.trpc.ethereum, ENetwork.ETH_MAINNET),
             [ENetwork.BTC_MAINNET]: new Bitcoin(this.wallet, this.trpc.bitcoin, ENetwork.BTC_MAINNET),

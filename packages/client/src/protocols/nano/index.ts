@@ -1,5 +1,5 @@
-import { Account, Protocol } from '../index';
-import { AnySigner, CoinType, CoinTypeExt, HexCoding, PrivateKey } from '../../trust-wallet';
+import { Protocol } from '../index';
+import { AnySigner, CoinType, HexCoding, PrivateKey } from '../../trust-wallet';
 import { TW } from '@trustwallet/wallet-core';
 import Decimal from 'decimal.js';
 import { EProtocol, type Transfer } from '@packages/shared';
@@ -14,6 +14,18 @@ export class Nano extends Protocol<EProtocol.Nano> {
 
     deriveKey(index: number): PrivateKey {
         return this.wallet.getDerivedKey(this.coinType, index, 0, 0);
+    }
+
+    private signBlock(input: TW.Nano.Proto.ISigningInput): TW.Nano.Proto.SigningOutput {
+        const validationError = TW.Nano.Proto.SigningInput.verify(input);
+
+        if (validationError) {
+            throw Error(validationError);
+        }
+
+        const encoded = TW.Nano.Proto.SigningInput.encode(input).finish();
+        const outputData = AnySigner.sign(encoded, this.coinType);
+        return TW.Nano.Proto.SigningOutput.decode(outputData);
     }
 
     async receive({
@@ -31,14 +43,17 @@ export class Nano extends Protocol<EProtocol.Nano> {
             throw Error('Account not found');
         }
 
-        const { frontier, balance } = await this.trpc.getAccountInfo.query(address);
+        const { frontier, balance } = await this.trpc.getAccountInfo.query({ address, network: this.network });
 
         let work: string;
 
         if (frontier) {
-            work = await this.trpc.workGenerate.mutate(frontier);
+            work = await this.trpc.workGenerate.mutate({ hash: frontier, network: this.network });
         } else {
-            work = await this.trpc.workGenerate.mutate(HexCoding.encode(account.publicKey.data()).slice(2));
+            work = await this.trpc.workGenerate.mutate({
+                hash: HexCoding.encode(account.publicKey.data()).slice(2),
+                network: this.network,
+            });
         }
 
         const input = TW.Nano.Proto.SigningInput.create({
@@ -51,15 +66,7 @@ export class Nano extends Protocol<EProtocol.Nano> {
             work,
         });
 
-        const validationError = TW.Nano.Proto.SigningInput.verify(input);
-
-        if (validationError) {
-            throw Error(validationError);
-        }
-
-        const encoded = TW.Nano.Proto.SigningInput.encode(input).finish();
-        const outputData = AnySigner.sign(encoded, this.coinType);
-        const block = TW.Nano.Proto.SigningOutput.decode(outputData);
+        const block = this.signBlock(input);
 
         if (block.error) {
             throw Error(block.errorMessage);
@@ -70,7 +77,9 @@ export class Nano extends Protocol<EProtocol.Nano> {
     }
 
     async receiveAll(account: string): Promise<{ frontier: string | null; received: bigint }> {
-        const receivable = await this.trpc.accountsReceivable.query([account]).then((r) => r[account]);
+        const receivable = await this.trpc.accountsReceivable
+            .query({ accounts: [account], network: this.network })
+            .then((r) => r[account]);
         let received = 0n;
         let frontier = null;
 
@@ -91,7 +100,10 @@ export class Nano extends Protocol<EProtocol.Nano> {
             throw Error('Account not found');
         }
 
-        let { frontier, balance, receivable } = await this.trpc.getAccountInfo.query(from);
+        let { frontier, balance, receivable } = await this.trpc.getAccountInfo.query({
+            address: from,
+            network: this.network,
+        });
 
         let newBalance = balance - BigInt(Decimal(amount).mul(this.multiplier).toFixed());
 
@@ -112,9 +124,12 @@ export class Nano extends Protocol<EProtocol.Nano> {
         let work: string;
 
         if (frontier) {
-            work = await this.trpc.workGenerate.mutate(frontier);
+            work = await this.trpc.workGenerate.mutate({ hash: frontier, network: this.network });
         } else {
-            work = await this.trpc.workGenerate.mutate(HexCoding.encode(account.publicKey.data()).slice(2));
+            work = await this.trpc.workGenerate.mutate({
+                hash: HexCoding.encode(account.publicKey.data()).slice(2),
+                network: this.network,
+            });
         }
 
         const input = TW.Nano.Proto.SigningInput.create({
@@ -126,15 +141,7 @@ export class Nano extends Protocol<EProtocol.Nano> {
             balance: newBalance.toString(),
         });
 
-        const validationError = TW.Nano.Proto.SigningInput.verify(input);
-
-        if (validationError) {
-            throw Error(validationError);
-        }
-
-        const encoded = TW.Nano.Proto.SigningInput.encode(input).finish();
-        const outputData = AnySigner.sign(encoded, this.coinType);
-        const block = TW.Nano.Proto.SigningOutput.decode(outputData);
+        const block = this.signBlock(input);
 
         return {
             fee: Decimal(0),
@@ -144,7 +151,7 @@ export class Nano extends Protocol<EProtocol.Nano> {
     }
 
     async balance({ address }: { address: string }): Promise<Decimal> {
-        const { balance, receivable } = await this.trpc.getBalance.query(address);
+        const { balance, receivable } = await this.trpc.getBalance.query({ address, network: this.network });
         return Decimal(balance + receivable).div(this.multiplier);
     }
 
