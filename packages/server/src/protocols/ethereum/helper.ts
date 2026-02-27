@@ -120,6 +120,8 @@ class EthereumHelper {
 export const helpers: Record<ProtocolNetworks[EProtocol.Ethereum][number], EthereumHelper> = {
     [ENetwork.POLYGON_AMOY]: new EthereumHelper(80002, Network.MATIC_AMOY, ENetwork.POLYGON_AMOY),
     [ENetwork.ETH_MAINNET]: new EthereumHelper(1, Network.ETH_MAINNET, ENetwork.ETH_MAINNET),
+    [ENetwork.POLYGON_MAINNET]: new EthereumHelper(137, Network.MATIC_MAINNET, ENetwork.POLYGON_MAINNET),
+    [ENetwork.ETH_SEPOLIA]: new EthereumHelper(11155111, Network.ETH_SEPOLIA, ENetwork.ETH_SEPOLIA),
 };
 
 export const alchemyNetworkToENetworkMap: {
