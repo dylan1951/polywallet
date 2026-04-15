@@ -1,5 +1,6 @@
 import { WebSocketServer } from 'ws';
 import { applyWSSHandler } from '@trpc/server/adapters/ws';
+import { createExpressMiddleware } from '@trpc/server/adapters/express';
 import { publicProcedure, router } from './trpc';
 import { nanoRouter } from './protocols/nano/router';
 import { createContext } from './context';
@@ -66,6 +67,14 @@ export type AppRouter = typeof appRouter;
 
 const app = express();
 app.use('/webhook', webhookRouter);
+
+app.use(
+    '/trpc',
+    createExpressMiddleware({
+        router: appRouter,
+        createContext,
+    })
+);
 
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server });

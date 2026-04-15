@@ -29,14 +29,14 @@ export const _transfers = pgTable('transfers', {
 export const _addresses = pgTable(
     'addresses',
     {
-        address: text().primaryKey(),
+        address: text().notNull(),
         userId: text()
             .references(() => _users.id)
             .notNull(),
         index: integer().notNull(),
         network: network().notNull(),
     },
-    (t) => [unique().on(t.userId, t.index, t.network)]
+    (t) => [primaryKey({ columns: [t.userId, t.index, t.network] }), unique().on(t.userId, t.address, t.network)]
 );
 
 export const addressRelations = relations(_addresses, ({ one }) => ({

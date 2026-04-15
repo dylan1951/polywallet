@@ -101,8 +101,13 @@ export const nanoRouter = router({
             );
         }),
     healthCheck: nanoProcedure.query(async ({ ctx: { helper } }) => {
-        const version = await helper.version();
-        return version.network === 'live';
+        try {
+            const version = await helper.version();
+            return version.network === 'live';
+        } catch (error) {
+            console.log(error);
+            return false;
+        }
     }),
 });
 
